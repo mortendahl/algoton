@@ -6,7 +6,7 @@ class Graph:
         self._graph = graph
 
     def nodes(self):
-	    return self._graph.keys()
+        return self._graph.keys()
     
     def has_node(self, node):
         return self._graph.has_key(node)
@@ -595,15 +595,15 @@ def topological_sort(graph):
     # return only the keys
     return [k for (k,v) in sorted_f]
 #
-#graph_figure_22_7 = Graph( {	'socks':	[ 'shoes' ],
-#								'shoes':	[ ],
-#								'pants': 	[ 'shoes', 'trousers' ],
-#								'trousers':	[ 'shoes', 'belt' ],
-#								'belt':		[ 'jacket' ],
-#								'shirt':	[ 'belt', 'tie' ],
-#								'tie':		[ 'jacket' ],
-#								'jacket':	[ ],
-#								'watch':	[ ] 				        })
+#graph_figure_22_7 = Graph( {   'socks':    [ 'shoes' ],
+#                               'shoes':    [ ],
+#                               'pants':    [ 'shoes', 'trousers' ],
+#                               'trousers': [ 'shoes', 'belt' ],
+#                               'belt':     [ 'jacket' ],
+#                               'shirt':    [ 'belt', 'tie' ],
+#                               'tie':      [ 'jacket' ],
+#                               'jacket':   [ ],
+#                               'watch':    [ ]                         })
 #
 #print topological_sort(graph_figure_22_7)
 
@@ -684,14 +684,14 @@ def strongly_connected_components(graph):
 #graph = Graph( { 0: [1], 1: [2,6], 2: [0,1,3,4], 3: [1], 4: [2,5], 5: [4], 6: [7], 7: [6] } )
 #print strongly_connected_components(graph)
 #
-#graph_figure_22_9 = Graph( {	'a':	[ 'b' ],
-#								'b':	[ 'c', 'e', 'f' ],
-#								'c': 	[ 'd', 'g' ],
-#								'd':	[ 'c', 'h' ],
-#								'e':	[ 'a', 'f' ],
-#								'f':	[ 'g' ],
-#								'g':	[ 'f', 'h' ],
-#								'h':	[ 'h' ] 			})
+#graph_figure_22_9 = Graph( {   'a':    [ 'b' ],
+#                               'b':    [ 'c', 'e', 'f' ],
+#                               'c':    [ 'd', 'g' ],
+#                               'd':    [ 'c', 'h' ],
+#                               'e':    [ 'a', 'f' ],
+#                               'f':    [ 'g' ],
+#                               'g':    [ 'f', 'h' ],
+#                               'h':    [ 'h' ]             })
 #print strongly_connected_components(graph_figure_22_9)
 #
 #graph = Graph( { 0: [1], 1: [2], 2: [0,1,3,4], 3: [], 4: [5], 5: [4], 6: [7], 7: [6] } )
@@ -715,7 +715,7 @@ if __name__ == '__main__':
     from timeit import Timer
     import gc
 
-    #print strongly_connected_components(Graph(random_dictlist_graph(200,3500)))
+
 
 
     randgraph_10x50 = Graph(random_dictlist_graph(10, 50))
@@ -723,16 +723,12 @@ if __name__ == '__main__':
 
     print "\n*** Tests for 'pythondocs' DFS methods: ***\n"
 
-    tests = [   ("testgraph", 0, 5),
-                ("randgraph_10x50", 0, 9),
-                ("randgraph_20x100", 0, -1),    ]
+    tests = [   ("randgraph_10x50", 0, 9),
+                ("randgraph_20x100", 0, -1)    ]
 
-
-    algos = []
-
-    #algos = [   "dfs_ss_any_pythondocs",
-    #            "dfs_ss_all_pythondocs",
-    #            "dfs_ss_shortest_pythondocs" ]
+    algos = [   "dfs_ss_any_pythondocs",
+                "dfs_ss_all_pythondocs",
+                "dfs_ss_shortest_pythondocs" ]
 
     for test in tests:
         graphName = test[0]
@@ -749,15 +745,19 @@ if __name__ == '__main__':
 
 
 
+
     print "\n*** Tests for 'cormen' DFS methods: ***\n"
 
     randgraph_100x5000 = Graph(random_dictlist_graph(100, 5000))
     randgraph_10000x1000000 = Graph(random_dictlist_graph(10000,1000000))
     randgraph_20000x3500000 = Graph(random_dictlist_graph(20000,3500000))
 
-    tests += [  ("randgraph_100x5000", 0, 4500),
-                ("randgraph_10000x1000000", 0, 900000),
-                ("randgraph_20000x3500000", 0, 3400000)     ]
+    tests = [   ("randgraph_10x50", 0, 9),
+                ("randgraph_20x100", 0, -1) ]#,
+
+#                ("randgraph_100x5000", 0, 4500),
+ #               ("randgraph_10000x1000000", 0, 900000),
+  #              ("randgraph_20000x3500000", 0, 3400000)     ]
 
     algos = [   "dfs_sm_any_cormen",
                 "timeddfs_sm_any_cormen"    ]
@@ -774,6 +774,7 @@ if __name__ == '__main__':
             print "{0:<55} : {1}".format(algo, time)
             gc.collect()
         print ""
+
 
 
 
@@ -799,74 +800,79 @@ if __name__ == '__main__':
 
 
 
-    
 
-#algos = [   "dfs_ss_any_pythondocs",
-#           "dfs_ss_all_pythondocs",
-#            "dfs_ss_shortest_pythondocs",
-#
-#			"dfs_sm_any_cormen",
-#			"dfs_sm_any_cormen_extended"
-#            
-#            "bfs_any_stackoverflow",                # must be acyclic
-#            "bfs_any_stackoverflow_optimised",      # must be acyclic
-#            
-#            "bfs_shortest_cormen",
-#            "bfs_shortest_cormen_optimised",
-#            
-#            "dfs_all_cormen_rooted",
-#            "timeddfs_all_cormen_rooted",
-#            
-#            "dfs_all_cormen",
-#            "timeddfs_all_cormen" ]
-    
-    
+    print "\n*** Tests for 'ss_cormen' BFS methods: ***\n"
 
+    tests = [   ("randgraph_10x50", 0, 9),
+                ("randgraph_20x100", 0, -1) ]#,
 
+#                ("randgraph_100x5000", 0, 4500),
+ #               ("randgraph_10000x1000000", 0, 900000),
+  #              ("randgraph_20000x3500000", 0, 3400000)     ]
 
+    algos = [   "bfs_ss_shortest_cormen",
+                "bfs_ss_shortest_cormen_optimised"          ]
 
-
-#g1 = random_distlist_graph_split_set(10000,1000000)
-#tests = [ g1 ]
-#algos = [  
-#           #lambda x: dfs_any_pythondocs(x, 1, 1000),
-#           #lambda x: dfs_all_pythondocs(x, 1, 99),
-#           #lambda x: dfs_shortest_pythondocs(x, 1, 1000),
-#           
-#           #lambda x: bfs_any_stackoverflow(x, 1, 950),            # must be acyclic
-#           #lambda x: bfs_any_stackoverflow_optimised(x, 1, 950),  # must be acyclic
-#           
-#           lambda x: bfs_shortest_cormen(x, 1, 9500),
-#           lambda x: bfs_shortest_cormen_optimised(x, 1, 9500),
-#           
-#           lambda x: dfs_all_cormen_rooted(x, 1),
-#           lambda x: timeddfs_all_cormen_rooted(x, 1), 
-#
-#           dfs_all_cormen,
-#           timeddfs_all_cormen
-#       ]
-#
-#for test in tests:
-#   for i,algo in enumerate(algos):
-#       print "{0} : {1}".format(i, Timer(lambda: algo(test)).timeit(number=3))
-#   print ""
+    for test in tests:
+        graphName = test[0]
+        start = test[1]
+        end = test[2]
+        print "* {0}, from {1} to {2} *".format(graphName, start, end)
+        graph = locals()[graphName]
+        for algo in algos:
+            algocode = locals()[algo]
+            time = Timer(lambda: algocode(graph, start, end)).timeit(number=3)
+            print "{0:<55} : {1}".format(algo, time)
+            gc.collect()
+        print ""
+    print "\n"
 
 
 
 
+    print "\n*** Tests for 'sm_cormen' BFS methods: ***\n"
+
+    algos = [  "bfs_sm_shortest_cormen"  ]
+
+    for test in tests:
+        graphName = test[0]
+        start = test[1]
+        end = test[2]
+        print "* {0}, from {1} to {2} *".format(graphName, start, end)
+        graph = locals()[graphName]
+        for algo in algos:
+            algocode = locals()[algo]
+            time = Timer(lambda: algocode(graph, start)).timeit(number=3)
+            print "{0:<55} : {1}".format(algo, time)
+            gc.collect()
+        print ""
+    print "\n"
 
 
 
-    
-#print topological_sort(newgraph4)
 
+    print "\n*** Tests for 'strongly_connected_components' methods: ***\n"
 
+    tests = [   "randgraph_10x50",
+                "randgraph_20x100",
 
+                "randgraph_100x5000",
+                "randgraph_10000x1000000",
+                "randgraph_20000x3500000"     ]
 
+    algos = [  "strongly_connected_components"  ]
 
+    for test in tests:
+        print "* {0} *".format(test)
+        graph = locals()[test]
+        for algo in algos:
+            algocode = locals()[algo]
+            time = Timer(lambda: algocode(graph)).timeit(number=3)
+            print "{0:<55} : {1}".format(algo, time)
+            gc.collect()
+        print ""
+    print "\n"
 
-# TODO
-# strongly connected components
 
 
 

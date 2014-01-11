@@ -1,0 +1,57 @@
+
+*** Tests for 'random_listlist' methods: ***
+
+(200, 3000)
+random_listlist_graph_choice                            : 0.0233170986176
+random_listlist_graph_choice_optimised                  : 0.020437002182
+random_listlist_graph_choice_alt                        : 0.0236151218414
+random_listlist_graph_choice_alt_optimised              : 0.0208530426025
+random_listlist_graph_sample                            : 0.011782169342
+random_listlist_graph_sample_lazy                       : 0.00710701942444
+
+(2000, 30000)
+random_listlist_graph_choice                            : 0.24575304985
+random_listlist_graph_choice_optimised                  : 0.214435100555
+random_listlist_graph_choice_alt                        : 0.245584011078
+random_listlist_graph_choice_alt_optimised              : 0.216420888901
+random_listlist_graph_sample                            : 0.160135030746
+random_listlist_graph_sample_lazy                       : 0.0979521274567
+
+(2000, 3000000)
+random_listlist_graph_choice                            : 54.8520209789
+random_listlist_graph_choice_optimised                  : 49.6703579426
+random_listlist_graph_choice_alt                        : 53.2957510948
+random_listlist_graph_choice_alt_optimised              : 47.0807499886
+random_listlist_graph_sample                            : 22.9790508747
+random_listlist_graph_sample_lazy                       : 12.4434127808
+
+
+*** Tests for 'random_dictlist' methods: ***
+
+(200, 3000)
+random_dictlist_graph_choice                            : 0.0259711742401
+random_dictlist_graph_choice_optimised                  : 0.0242118835449
+random_dictlist_graph_sample                            : 0.0138900279999
+random_dictlist_graph_sample_split_set                  : 0.0134739875793
+random_dictlist_graph_sample_split_sorted               : 0.0136451721191
+random_dictlist_graph_sample_split_sorted_optimised     : 0.0135309696198
+random_dictlist_graph_sample_split_sorted_alt           : 0.0131769180298
+
+(2000, 30000)
+random_dictlist_graph_choice                            : 0.292225837708
+random_dictlist_graph_choice_optimised                  : 0.243829965591
+random_dictlist_graph_sample                            : 0.146291971207
+random_dictlist_graph_sample_split_set                  : 0.14480805397
+random_dictlist_graph_sample_split_sorted               : 0.14937210083
+random_dictlist_graph_sample_split_sorted_optimised     : 0.144721031189
+random_dictlist_graph_sample_split_sorted_alt           : 0.14414191246
+
+(2000, 3000000)
+random_dictlist_graph_choice                            : 49.720788002
+random_dictlist_graph_choice_optimised                  : 48.451392889
+random_dictlist_graph_sample                            : 22.1965949535
+random_dictlist_graph_sample_split_set                  : 10.9142799377
+random_dictlist_graph_sample_split_sorted               : 14.386038065
+random_dictlist_graph_sample_split_sorted_optimised     : 13.1186909676
+random_dictlist_graph_sample_split_sorted_alt           : 17.4372150898
+
