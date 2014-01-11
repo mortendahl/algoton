@@ -155,7 +155,7 @@ def random_dictlist_graph_sample_split_set(no_nodes, no_edges, weight=0.6):
             graph[node_from] = []
             for node_to in xrange(no_nodes):
                 if not node_from*no_nodes+node_to in missing_edges: 
-	                graph[node_from].append(node_to)
+                    graph[node_from].append(node_to)
         return graph
 
 def random_dictlist_graph_sample_split_set_optimised(no_nodes, no_edges, weight=0.6):
@@ -180,7 +180,7 @@ def random_dictlist_graph_sample_split_set_optimised(no_nodes, no_edges, weight=
             node_edges_append = node_edges.append
             for node_to in xrange(no_nodes):
                 if not node_from*no_nodes+node_to in missing_edges: 
-	                node_edges_append(node_to)
+                    node_edges_append(node_to)
             graph[node_from] = node_edges
         return graph
 
@@ -285,51 +285,51 @@ def random_dictlist_graph_sample_split_sorted_alt(no_nodes, no_edges, weight=0.6
 # performance tests
 #
 # ********
-		
+        
 if __name__ == '__main__':
 
-	from timeit import Timer
-	import gc
+    from timeit import Timer
+    import gc
 
-	print "\n*** Tests for 'random_listlist' methods: ***\n"
+    print "\n*** Tests for 'random_listlist' methods: ***\n"
 
-	tests = [  	(200,3000), (2000,30000), (2000,1000000), (2000,3000000)	]
-	algos = [	"random_listlist_graph_choice",
-				"random_listlist_graph_choice_optimised",
-				"random_listlist_graph_choice_alt",
-				"random_listlist_graph_choice_alt_optimised",
-				#"random_listlist_graph_sample_naive",
-				"random_listlist_graph_sample",
-				"random_listlist_graph_sample_lazy" 	]
+    tests = [   (200,3000), (2000,30000), (2000,1000000), (2000,3000000)    ]
+    algos = [   "random_listlist_graph_choice",
+                "random_listlist_graph_choice_optimised",
+                "random_listlist_graph_choice_alt",
+                "random_listlist_graph_choice_alt_optimised",
+                #"random_listlist_graph_sample_naive",
+                "random_listlist_graph_sample",
+                "random_listlist_graph_sample_lazy"     ]
 
-	for test in tests:
-		print test
-		for algo in algos:
-			algocode = locals()[algo]
-			time = Timer(lambda: algocode(*test)).timeit(number=3)
-			print "{0:<55} : {1}".format(algo, time)
-			gc.collect()
-			print ""
+    for test in tests:
+        print test
+        for algo in algos:
+            algocode = locals()[algo]
+            time = Timer(lambda: algocode(*test)).timeit(number=3)
+            print "{0:<55} : {1}".format(algo, time)
+            gc.collect()
+            print ""
 
-	
-	print "\n*** Tests for 'random_dictlist' methods: ***\n"
+    
+    print "\n*** Tests for 'random_dictlist' methods: ***\n"
 
-	tests = [ 	(200,3000), (2000,30000), (2000,1000000), (2000,3000000) ]
-	#tests = [ 	(2000,2000000), (2000,3500000), (2000,3999000), (10000,4000000)	]
+    tests = [   (200,3000), (2000,30000), (2000,1000000), (2000,3000000) ]
+    #tests = [  (2000,2000000), (2000,3500000), (2000,3999000), (10000,4000000) ]
 
-	algos = [	"random_dictlist_graph_choice",
-				"random_dictlist_graph_choice_optimised",
-				"random_dictlist_graph_sample",
-				"random_dictlist_graph_sample_split_set",
-				"random_dictlist_graph_sample_split_sorted",
-				"random_dictlist_graph_sample_split_sorted_optimised",
-				"random_dictlist_graph_sample_split_sorted_alt"			]
+    algos = [   "random_dictlist_graph_choice",
+                "random_dictlist_graph_choice_optimised",
+                "random_dictlist_graph_sample",
+                "random_dictlist_graph_sample_split_set",
+                "random_dictlist_graph_sample_split_sorted",
+                "random_dictlist_graph_sample_split_sorted_optimised",
+                "random_dictlist_graph_sample_split_sorted_alt"         ]
 
-	for test in tests:
-		print test
-		for algo in algos:
-			algocode = locals()[algo]
-			time = Timer(lambda: algocode(*test)).timeit(number=3)
-			print "{0:<55} : {1}".format(algo, time)
-			gc.collect()
-			print ""
+    for test in tests:
+        print test
+        for algo in algos:
+            algocode = locals()[algo]
+            time = Timer(lambda: algocode(*test)).timeit(number=3)
+            print "{0:<55} : {1}".format(algo, time)
+            gc.collect()
+            print ""
