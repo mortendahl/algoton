@@ -148,7 +148,7 @@ def dfs_ss_shortest_pythondocs(graph, start, end, path=[]):
 #  - end:    end node in path
 #
 # output:
-#  - path:   a path from 'start' to 'end' (as list) if it exists
+#  - path:   a path from 'start' to 'end' (as list) if it exists in parent (NOT graph)
 #
 # notes:
 #  - see http://stackoverflow.com/questions/3705670/best-way-to-create-a-reversed-list-in-python
@@ -463,7 +463,6 @@ def bfs_ss_shortest_stackoverflow_optimised(graph, start, end):
 
 from collections import deque   # for efficient implementation of queue (doubly linked list)
 
-
 #
 # inspired by Cormen etc.
 #  - unlike them we return the first path found
@@ -575,11 +574,6 @@ def bfs_sm_shortest_cormen(graph, start):
 
 
 
-
-
-
-
-
 #
 # from Cormen etc.
 #
@@ -600,18 +594,17 @@ def topological_sort(graph):
     sorted_f = sorted(f_as_tuplelist, key=sortkey, reverse=True)
     # return only the keys
     return [k for (k,v) in sorted_f]
-
-
-graph_figure_22_7 = Graph( {	'socks':	[ 'shoes' ],
-								'shoes':	[ ],
-								'pants': 	[ 'shoes', 'trousers' ],
-								'trousers':	[ 'shoes', 'belt' ],
-								'belt':		[ 'jacket' ],
-								'shirt':	[ 'belt', 'tie' ],
-								'tie':		[ 'jacket' ],
-								'jacket':	[ ],
-								'watch':	[ ] 				        })
-
+#
+#graph_figure_22_7 = Graph( {	'socks':	[ 'shoes' ],
+#								'shoes':	[ ],
+#								'pants': 	[ 'shoes', 'trousers' ],
+#								'trousers':	[ 'shoes', 'belt' ],
+#								'belt':		[ 'jacket' ],
+#								'shirt':	[ 'belt', 'tie' ],
+#								'tie':		[ 'jacket' ],
+#								'jacket':	[ ],
+#								'watch':	[ ] 				        })
+#
 #print topological_sort(graph_figure_22_7)
 
 
@@ -628,6 +621,7 @@ def transpose(graph):
             transposed[adjacent].append(node)
     return Graph(transposed)
 
+
 def forest(parent):
     roots = []
     graph = dict()
@@ -637,6 +631,7 @@ def forest(parent):
         if parent == None: roots.append(child)
         if parent != None: graph[parent].append(child)
     return roots, Graph(graph)
+
 
 def reachable(graph, root):
     reached = set([root])
@@ -657,6 +652,15 @@ def reachable(graph, root):
     return reached
 
 
+#
+# from Cormen etc.
+#
+# input:
+#  - graph:    directed, may be cyclic (dict+list representation)
+#
+# output:
+#  - ordering: the strongly connected components in the graph (as list of sets)
+#
 def strongly_connected_components(graph):
     # use first DFS to get finished times
     _,_,f1 = timeddfs_sm_any_cormen_extended(graph)
@@ -676,35 +680,7 @@ def strongly_connected_components(graph):
         component = reachable(trees, root)
         components.append(component)
     return components
-
-    #for (child,parent) in p2.iteritems():
-    #    if parent == None: roots.append(child)
-    #for (child,parent) in p2.iteritems():
-    #    p2trans[child] = []
-    #for (child,parent) in p2.iteritems():
-    #    if parent != None: p2trans[parent].append(child)
-    # the adobe put together into one loop gives:
-    #for (child,parent) in p2.iteritems():
-    #    if parent == None:
-    #        # record that 'child' is a root
-    #        roots.append(child)
-    #    else:
-    #        # add reversed edge
-    #        if p2trans.has_key(parent): p2trans[parent].append(child)
-    #        else: p2trans[parent] = [child]
-    #    # ensure that 'child' is present in 'p2trans'
-    #    if not p2trans.has_key(child): p2trans[child] = []
-
-#    below does NOT work since p2 may contain proper trees
-#    # gather components
-#    components = []
-#    for node in graph.nodes():
-#        if d2[node] + 1 == f2[node]:
-#            # 'node' is a leaf so path from root gives entire component
-#            component = path_from_root(p2, node)
-#            components.append(component)
-#    return components
-# NOTE: shows that parent trees in strongly_conn... are NOT just straight lines
+#
 #graph = Graph( { 0: [1], 1: [2,6], 2: [0,1,3,4], 3: [1], 4: [2,5], 5: [4], 6: [7], 7: [6] } )
 #print strongly_connected_components(graph)
 #
@@ -718,8 +694,10 @@ def strongly_connected_components(graph):
 #								'h':	[ 'h' ] 			})
 #print strongly_connected_components(graph_figure_22_9)
 #
-graph = Graph( { 0: [1], 1: [2], 2: [0,1,3,4], 3: [], 4: [5], 5: [4], 6: [7], 7: [6] } )
-print strongly_connected_components(graph)
+#graph = Graph( { 0: [1], 1: [2], 2: [0,1,3,4], 3: [], 4: [5], 5: [4], 6: [7], 7: [6] } )
+#print strongly_connected_components(graph)
+
+
 
 
 
