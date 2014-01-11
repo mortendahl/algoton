@@ -724,133 +724,103 @@ print strongly_connected_components(graph)
 
 
 
+# ********
+#
+# performance tests
+#
+# ********
+        
+if __name__ == '__main__':
+
+    from random_graph_generation import random_dictlist_graph_sample_split_set_optimised as random_dictlist_graph
+
+    from timeit import Timer
+    import gc
+
+    #print strongly_connected_components(Graph(random_dictlist_graph(200,3500)))
 
 
-import random
+    randgraph_10x50 = Graph(random_dictlist_graph(10, 50))
+    randgraph_20x100 = Graph(random_dictlist_graph(20, 100))
 
-# this is 'random_dictlist_graph_sample_split_set_optimised' from random-graph-generation.py
-def random_dictlist_graph(no_nodes, no_edges, weight=0.6):
-    max_no_edges = no_nodes**2
-    no_edges = min(no_edges, max_no_edges)
-    if no_edges < max_no_edges*weight:
-        existing_edges = random.sample(xrange(max_no_edges), no_edges)
-        graph = {}
-        for node in xrange(no_nodes):
-            graph[node] = []
-        for edge in existing_edges:
-            (node_from,node_to) = divmod(edge, no_nodes)
-            graph[node_from].append(node_to)
-        return graph
-    else:
-        missing_edges = random.sample(xrange(max_no_edges), max_no_edges - no_edges)
-        # convert missing_edges to a set for quick look-up
-        missing_edges = set(missing_edges)
-        graph = {}
-        for node_from in xrange(no_nodes):
-            node_edges = []
-            node_edges_append = node_edges.append
-            for node_to in xrange(no_nodes):
-                if not node_from*no_nodes+node_to in missing_edges: 
-                    node_edges_append(node_to)
-            graph[node_from] = node_edges
-        return graph
+    print "\n*** Tests for 'pythondocs' DFS methods: ***\n"
+
+    tests = [   ("testgraph", 0, 5),
+                ("randgraph_10x50", 0, 9),
+                ("randgraph_20x100", 0, -1),    ]
 
 
+    algos = []
 
+    #algos = [   "dfs_ss_any_pythondocs",
+    #            "dfs_ss_all_pythondocs",
+    #            "dfs_ss_shortest_pythondocs" ]
 
-
-#print strongly_connected_components(Graph(random_dictlist_graph(200,3500)))
-
-exit(0)
-
-
-
-
-
-from timeit import Timer
-import gc
-
-randgraph_10x50 = Graph(random_dictlist_graph(10, 50))
-randgraph_20x100 = Graph(random_dictlist_graph(20, 100))
-
-print "\n*** Tests for 'pythondocs' DFS methods: ***\n"
-
-tests = [   ("testgraph", 0, 5),
- 			("randgraph_10x50", 0, 9),
-			("randgraph_20x100", 0, -1),    ]
-
-
-algos = []
-
-#algos = [   "dfs_ss_any_pythondocs",
-#            "dfs_ss_all_pythondocs",
-#            "dfs_ss_shortest_pythondocs" ]
-
-for test in tests:
-    graphName = test[0]
-    start = test[1]
-    end = test[2]
-    print "* {0}, from {1} to {2} *".format(graphName, start, end)
-    graph = locals()[graphName]
-    for algo in algos:
-        algocode = locals()[algo]
-        time = Timer(lambda: algocode(graph, start, end)).timeit(number=3)
-        print "{0:<55} : {1}".format(algo, time)
-        gc.collect()
-    print ""
+    for test in tests:
+        graphName = test[0]
+        start = test[1]
+        end = test[2]
+        print "* {0}, from {1} to {2} *".format(graphName, start, end)
+        graph = locals()[graphName]
+        for algo in algos:
+            algocode = locals()[algo]
+            time = Timer(lambda: algocode(graph, start, end)).timeit(number=3)
+            print "{0:<55} : {1}".format(algo, time)
+            gc.collect()
+        print ""
 
 
 
-print "\n*** Tests for 'cormen' DFS methods: ***\n"
+    print "\n*** Tests for 'cormen' DFS methods: ***\n"
 
-randgraph_100x5000 = Graph(random_dictlist_graph(100, 5000))
-randgraph_10000x1000000 = Graph(random_dictlist_graph(10000,1000000))
-randgraph_20000x3500000 = Graph(random_dictlist_graph(20000,3500000))
+    randgraph_100x5000 = Graph(random_dictlist_graph(100, 5000))
+    randgraph_10000x1000000 = Graph(random_dictlist_graph(10000,1000000))
+    randgraph_20000x3500000 = Graph(random_dictlist_graph(20000,3500000))
 
-tests += [	("randgraph_100x5000", 0, 4500),
-			("randgraph_10000x1000000", 0, 900000),
-			("randgraph_20000x3500000", 0, 3400000)		]
+    tests += [  ("randgraph_100x5000", 0, 4500),
+                ("randgraph_10000x1000000", 0, 900000),
+                ("randgraph_20000x3500000", 0, 3400000)     ]
 
-algos = [   "dfs_sm_any_cormen",
-            "timeddfs_sm_any_cormen"	]
+    algos = [   "dfs_sm_any_cormen",
+                "timeddfs_sm_any_cormen"    ]
 
-for test in tests:
-    graphName = test[0]
-    start = test[1]
-    end = test[2]
-    print "* {0}, from {1} to {2} *".format(graphName, start, end)
-    graph = locals()[graphName]
-    for algo in algos:
-        algocode = locals()[algo]
-        time = Timer(lambda: algocode(graph, start)).timeit(number=3)
-        print "{0:<55} : {1}".format(algo, time)
-        gc.collect()
-    print ""
-
-
-
-print "\n*** Tests for 'cormen_extended' DFS methods: ***\n"
-
-algos = [   "dfs_sm_any_cormen_extended",
- 			"timeddfs_sm_any_cormen_extended"	]
-
-for test in tests:
-    graphName = test[0]
-    start = test[1]
-    end = test[2]
-    print "* {0}, from {1} to {2} *".format(graphName, start, end)
-    graph = locals()[graphName]
-    for algo in algos:
-        algocode = locals()[algo]
-        time = Timer(lambda: algocode(graph, [0])).timeit(number=3)
-        print "{0:<55} : {1}".format(algo, time)
-        gc.collect()
-    print ""
-print "\n"
+    for test in tests:
+        graphName = test[0]
+        start = test[1]
+        end = test[2]
+        print "* {0}, from {1} to {2} *".format(graphName, start, end)
+        graph = locals()[graphName]
+        for algo in algos:
+            algocode = locals()[algo]
+            time = Timer(lambda: algocode(graph, start)).timeit(number=3)
+            print "{0:<55} : {1}".format(algo, time)
+            gc.collect()
+        print ""
 
 
 
-exit(0)
+    print "\n*** Tests for 'cormen_extended' DFS methods: ***\n"
+
+    algos = [   "dfs_sm_any_cormen_extended",
+                "timeddfs_sm_any_cormen_extended"   ]
+
+    for test in tests:
+        graphName = test[0]
+        start = test[1]
+        end = test[2]
+        print "* {0}, from {1} to {2} *".format(graphName, start, end)
+        graph = locals()[graphName]
+        for algo in algos:
+            algocode = locals()[algo]
+            time = Timer(lambda: algocode(graph, [0])).timeit(number=3)
+            print "{0:<55} : {1}".format(algo, time)
+            gc.collect()
+        print ""
+    print "\n"
+
+
+
+
     
 
 #algos = [   "dfs_ss_any_pythondocs",

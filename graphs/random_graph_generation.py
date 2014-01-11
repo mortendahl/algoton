@@ -1,13 +1,7 @@
 
+
 import random
 import itertools
-
-from timeit import Timer
-import gc
-
-
-
-
 
 
 # ********
@@ -86,9 +80,6 @@ def random_listlist_graph_sample_lazy(no_nodes, no_edges):
     edge_decoder = lambda edge: divmod(edge, no_nodes)
     edges = itertools.imap(edge_decoder, encoded_edges)
     return (nodes,edges)
-
-
-
 
 
 
@@ -289,54 +280,56 @@ def random_dictlist_graph_sample_split_sorted_alt(no_nodes, no_edges, weight=0.6
 
 
 
-
-
-
 # ********
 #
 # performance tests
 #
 # ********
+		
+if __name__ == '__main__':
 
+	from timeit import Timer
+	import gc
 
-print "\n*** Tests for 'random_listlist' methods: ***\n"
+	print "\n*** Tests for 'random_listlist' methods: ***\n"
 
-tests = [  	(200,3000), (2000,30000), (2000,1000000), (2000,3000000)	]
-algos = [	"random_listlist_graph_choice",
-			"random_listlist_graph_choice_optimised",
-			"random_listlist_graph_choice_alt",
-			"random_listlist_graph_choice_alt_optimised",
-	#		"random_listlist_graph_sample_naive",
-			"random_listlist_graph_sample",
-			"random_listlist_graph_sample_lazy" ]
+	tests = [  	(200,3000), (2000,30000), (2000,1000000), (2000,3000000)	]
+	algos = [	"random_listlist_graph_choice",
+				"random_listlist_graph_choice_optimised",
+				"random_listlist_graph_choice_alt",
+				"random_listlist_graph_choice_alt_optimised",
+				#"random_listlist_graph_sample_naive",
+				"random_listlist_graph_sample",
+				"random_listlist_graph_sample_lazy" 	]
 
-for test in tests:
-	print test
-	for algo in algos:
-		algocode = locals()[algo]
-		time = Timer(lambda: algocode(*test)).timeit(number=3)
-		print "{0:<55} : {1}".format(algo, time)
-		gc.collect()
-	print ""
+	for test in tests:
+		print test
+		for algo in algos:
+			algocode = locals()[algo]
+			time = Timer(lambda: algocode(*test)).timeit(number=3)
+			print "{0:<55} : {1}".format(algo, time)
+			gc.collect()
+			print ""
 
-print "\n*** Tests for 'random_dictlist' methods: ***\n"
+	
+	print "\n*** Tests for 'random_dictlist' methods: ***\n"
 
-tests = [ 	(200,3000), (2000,30000), (2000,1000000), (2000,3000000) ]
-#tests = [ 	(2000,2000000), (2000,3500000), (2000,3999000), (10000,4000000)	]
+	tests = [ 	(200,3000), (2000,30000), (2000,1000000), (2000,3000000) ]
+	#tests = [ 	(2000,2000000), (2000,3500000), (2000,3999000), (10000,4000000)	]
 
-algos = [	"random_dictlist_graph_choice",
-			"random_dictlist_graph_choice_optimised",
-			"random_dictlist_graph_sample",
-			"random_dictlist_graph_sample_split_set",
-			"random_dictlist_graph_sample_split_sorted",
-			"random_dictlist_graph_sample_split_sorted_optimised",
-		 	"random_dictlist_graph_sample_split_sorted_alt"			]
+	algos = [	"random_dictlist_graph_choice",
+				"random_dictlist_graph_choice_optimised",
+				"random_dictlist_graph_sample",
+				"random_dictlist_graph_sample_split_set",
+				"random_dictlist_graph_sample_split_sorted",
+				"random_dictlist_graph_sample_split_sorted_optimised",
+				"random_dictlist_graph_sample_split_sorted_alt"			]
 
-for test in tests:
-	print test
-	for algo in algos:
-		algocode = locals()[algo]
-		time = Timer(lambda: algocode(*test)).timeit(number=3)
-		print "{0:<55} : {1}".format(algo, time)
-		gc.collect()
-	print ""
+	for test in tests:
+		print test
+		for algo in algos:
+			algocode = locals()[algo]
+			time = Timer(lambda: algocode(*test)).timeit(number=3)
+			print "{0:<55} : {1}".format(algo, time)
+			gc.collect()
+			print ""
