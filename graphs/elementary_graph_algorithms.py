@@ -753,11 +753,11 @@ if __name__ == '__main__':
     randgraph_20000x3500000 = Graph(random_dictlist_graph(20000,3500000))
 
     tests = [   ("randgraph_10x50", 0, 9),
-                ("randgraph_20x100", 0, -1) ]#,
+                ("randgraph_20x100", 0, -1),
 
-#                ("randgraph_100x5000", 0, 4500),
- #               ("randgraph_10000x1000000", 0, 900000),
-  #              ("randgraph_20000x3500000", 0, 3400000)     ]
+                ("randgraph_100x5000", 0, 4500),
+                ("randgraph_10000x1000000", 0, 900000),
+                ("randgraph_20000x3500000", 0, 3400000)     ]
 
     algos = [   "dfs_sm_any_cormen",
                 "timeddfs_sm_any_cormen"    ]
@@ -804,11 +804,11 @@ if __name__ == '__main__':
     print "\n*** Tests for 'ss_cormen' BFS methods: ***\n"
 
     tests = [   ("randgraph_10x50", 0, 9),
-                ("randgraph_20x100", 0, -1) ]#,
+                ("randgraph_20x100", 0, -1),
 
-#                ("randgraph_100x5000", 0, 4500),
- #               ("randgraph_10000x1000000", 0, 900000),
-  #              ("randgraph_20000x3500000", 0, 3400000)     ]
+                ("randgraph_100x5000", 0, 4500),
+                ("randgraph_10000x1000000", 0, 900000),
+                ("randgraph_20000x3500000", 0, 3400000)     ]
 
     algos = [   "bfs_ss_shortest_cormen",
                 "bfs_ss_shortest_cormen_optimised"          ]
@@ -872,10 +872,3 @@ if __name__ == '__main__':
             gc.collect()
         print ""
     print "\n"
-
-
-
-
-
-
-

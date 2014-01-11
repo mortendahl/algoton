@@ -1,0 +1,126 @@
+
+*** Tests for 'pythondocs' DFS methods: ***
+
+* randgraph_10x50, from 0 to 9 *
+dfs_ss_any_pythondocs                                   : 4.79221343994e-05
+dfs_ss_all_pythondocs                                   : 0.0388121604919
+dfs_ss_shortest_pythondocs                              : 0.0258610248566
+
+* randgraph_20x100, from 0 to -1 *
+dfs_ss_any_pythondocs                                   : 94.8020200729
+dfs_ss_all_pythondocs                                   : 100.094017029
+dfs_ss_shortest_pythondocs                              : 94.7827219963
+
+
+*** Tests for 'cormen' DFS methods: ***
+
+* randgraph_10x50, from 0 to 9 *
+dfs_sm_any_cormen                                       : 0.000137805938721
+timeddfs_sm_any_cormen                                  : 0.000156879425049
+
+* randgraph_20x100, from 0 to -1 *
+dfs_sm_any_cormen                                       : 0.000783920288086
+timeddfs_sm_any_cormen                                  : 0.000355958938599
+
+* randgraph_100x5000, from 0 to 4500 *
+dfs_sm_any_cormen                                       : 0.00434899330139
+timeddfs_sm_any_cormen                                  : 0.00259804725647
+
+* randgraph_10000x1000000, from 0 to 900000 *
+dfs_sm_any_cormen                                       : 5.12706112862
+timeddfs_sm_any_cormen                                  : 5.35357809067
+
+* randgraph_20000x3500000, from 0 to 3400000 *
+dfs_sm_any_cormen                                       : 28.4653871059
+timeddfs_sm_any_cormen                                  : 28.6411349773
+
+
+*** Tests for 'cormen_extended' DFS methods: ***
+
+* randgraph_10x50, from 0 to 9 *
+dfs_sm_any_cormen_extended                              : 0.000142097473145
+timeddfs_sm_any_cormen_extended                         : 0.000160932540894
+
+* randgraph_20x100, from 0 to -1 *
+dfs_sm_any_cormen_extended                              : 0.000249862670898
+timeddfs_sm_any_cormen_extended                         : 0.0002760887146
+
+* randgraph_100x5000, from 0 to 4500 *
+dfs_sm_any_cormen_extended                              : 0.00283598899841
+timeddfs_sm_any_cormen_extended                         : 0.00389409065247
+
+* randgraph_10000x1000000, from 0 to 900000 *
+dfs_sm_any_cormen_extended                              : 5.19565606117
+timeddfs_sm_any_cormen_extended                         : 5.12216305733
+
+* randgraph_20000x3500000, from 0 to 3400000 *
+dfs_sm_any_cormen_extended                              : 28.9022579193
+timeddfs_sm_any_cormen_extended                         : 29.280246973
+
+
+
+
+*** Tests for 'ss_cormen' BFS methods: ***
+
+* randgraph_10x50, from 0 to 9 *
+bfs_ss_shortest_cormen                                  : 0.000118017196655
+bfs_ss_shortest_cormen_optimised                        : 0.000142097473145
+
+* randgraph_20x100, from 0 to -1 *
+bfs_ss_shortest_cormen                                  : 0.000172853469849
+bfs_ss_shortest_cormen_optimised                        : 0.000156879425049
+
+* randgraph_100x5000, from 0 to 4500 *
+bfs_ss_shortest_cormen                                  : 0.00180196762085
+bfs_ss_shortest_cormen_optimised                        : 0.00309300422668
+
+* randgraph_10000x1000000, from 0 to 900000 *
+bfs_ss_shortest_cormen                                  : 1.68673920631
+bfs_ss_shortest_cormen_optimised                        : 1.40209388733
+
+* randgraph_20000x3500000, from 0 to 3400000 *
+bfs_ss_shortest_cormen                                  : 7.12657999992
+bfs_ss_shortest_cormen_optimised                        : 5.8155310154
+
+
+
+
+*** Tests for 'sm_cormen' BFS methods: ***
+
+* randgraph_10x50, from 0 to 9 *
+bfs_sm_shortest_cormen                                  : 0.000221967697144
+
+* randgraph_20x100, from 0 to -1 *
+bfs_sm_shortest_cormen                                  : 0.00201010704041
+
+* randgraph_100x5000, from 0 to 4500 *
+bfs_sm_shortest_cormen                                  : 0.00207209587097
+
+* randgraph_10000x1000000, from 0 to 900000 *
+bfs_sm_shortest_cormen                                  : 1.48200702667
+
+* randgraph_20000x3500000, from 0 to 3400000 *
+bfs_sm_shortest_cormen                                  : 6.21775913239
+
+
+
+
+*** Tests for 'strongly_connected_components' methods: ***
+
+* randgraph_10x50 *
+strongly_connected_components                           : 0.00062108039856
+
+* randgraph_20x100 *
+strongly_connected_components                           : 0.00114893913269
+
+* randgraph_100x5000 *
+strongly_connected_components                           : 0.0133118629456
+
+* randgraph_10000x1000000 *
+strongly_connected_components                           : 16.2133829594
+
+* randgraph_20000x3500000 *
+strongly_connected_components                           : 89.305492878
+
+
+
