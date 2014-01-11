@@ -1,8 +1,3 @@
-#!/usr/bin/python
-
-
-
-
 
 
 class Graph:
