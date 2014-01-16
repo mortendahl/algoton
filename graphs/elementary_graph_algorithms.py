@@ -203,7 +203,7 @@ def dfs_sm_any_cormen(graph, start):
     parent = { start: None }
     # prepare loop variable
     greyed = set([start])
-    path = [start]      # efficient stack (linked list)
+    path = [start]      # a list is efficient for a stack
     while path:
         # get deepest node in path
         node = path.pop()
@@ -290,7 +290,7 @@ def timeddfs_sm_any_cormen(graph, start):
     finished = {}
     # prepare loop variable
     greyed = set([start])
-    path = [start]      # efficient stack (linked list)
+    path = [start]      # efficient stack
     while path:
         # get deepest node in path
         node = path.pop()
@@ -385,10 +385,6 @@ def timeddfs_sm_any_cormen_extended(graph, rootNodes=None):
 
 
 
-
-
-
-
 #
 # from http://stackoverflow.com/questions/8922060/breadth-first-search-trace-path
 #
@@ -403,7 +399,7 @@ def timeddfs_sm_any_cormen_extended(graph, rootNodes=None):
 # notes:
 #  - performs a breath-first search
 #  - assumes acyclic input graph
-#  - somewhat expensive queue.pop(0) operation since a linked list is used as queue (O(n))
+#  - somewhat expensive queue.pop(0) operation since a list is used as queue (O(n))
 #  - unnecessary work might be performed since 'node == end' check is not performed
 #    when 'node' is first encountered (in for loop) but only later when it is popped
 #  - large memory footprint as it stores the rim as full-length paths
@@ -477,7 +473,7 @@ from collections import deque   # for efficient implementation of queue (doubly 
 #
 # notes:
 #  - performs a breath-first search
-#  - somewhat expensive rim.pop(0) operation since a linked list is used as queue (O(n))
+#  - somewhat expensive rim.pop(0) operation since a list is used as queue (O(n))
 #  - unnecessary work might be performed since 'node == end' check is not performed
 #    when 'node' is first encountered (in for loop) but only later when it is popped
 #  - by having the 'parent' dictionary we do not need to store rim as full-length paths
@@ -489,7 +485,7 @@ def bfs_ss_shortest_cormen(graph, start, end):
     # to allow backtracking we record how each node was discovered 
     # - using a dictionary gives us efficient look-up
     parent = { start: None }
-    # we store rim as a linked list
+    # we store rim as a list
     # - not optimal since for BFS we need FIFO
     rim = [start]
     while rim:
@@ -694,6 +690,81 @@ def strongly_connected_components(graph):
 
 
 
+
+def timeddfs_sm_any_cormen_extended_finished(graph, rootNodes=None):
+    finished = []
+    greyed = set()
+    if not rootNodes: rootNodes = graph.nodes()
+    for root in rootNodes:
+        # skip if already discovered (grey)
+        if root in greyed: continue 
+        # if new then mark it as discovered
+        greyed.add(root)
+        # ... and start depth-first search
+        path = [root]
+        while path:
+            # get deepest node in path
+            node = path.pop()
+            for adjacent in graph.neighbours(node):
+                # skip if already discovered (grey)
+                if adjacent in greyed: continue
+                # if new then mark it as discovered
+                greyed.add(adjacent)
+                # ... make it the new pivot
+                path = path + [node, adjacent]
+                # ... and indicated that 'node' is not yet finished
+                break
+            else:
+                finished.append(node)
+    return finished
+
+
+def timeddfs_sm_any_cormen_extended_components(graph, rootNodes=None):
+    components = []
+    greyed = set()
+    if not rootNodes: rootNodes = graph.nodes()
+    for root in rootNodes:
+        # skip if already discovered (grey)
+        if root in greyed: continue 
+        # if new then mark it as discovered
+        greyed.add(root)
+        # ... start a new component
+        component = set([root])
+        # ... and start depth-first search
+        path = [root]
+        while path:
+            # get deepest node in path
+            node = path.pop()
+            for adjacent in graph.neighbours(node):
+                # skip if already discovered (grey)
+                if adjacent in greyed: continue
+                # if new then mark it as discovered
+                greyed.add(adjacent)
+                # ... add to component
+                component.add(adjacent)
+                # ... make it the new pivot
+                path = path + [node, adjacent]
+                # ... and indicated that 'node' is not yet finished
+                break
+        components.append(component)
+    return components
+
+
+def strongly_connected_components_optimised(graph):
+    # use first DFS to get finished times
+    f = timeddfs_sm_any_cormen_extended_finished(graph)
+    # use second DFS to get component trees
+    graph_t = transpose(graph)
+    f.reverse()		# in-place reversal 
+    components = timeddfs_sm_any_cormen_extended_components(graph_t, f)
+    return components
+
+
+
+
+
+
+
 # ********
 #
 # performance tests
@@ -852,7 +923,8 @@ if __name__ == '__main__':
                 "randgraph_10000x1000000",
                 "randgraph_20000x3500000"     ]
 
-    algos = [  "strongly_connected_components"  ]
+    algos = [  "strongly_connected_components",
+               "strongly_connected_components_optimised"  ]
 
     for test in tests:
         print "* {0} *".format(test)
