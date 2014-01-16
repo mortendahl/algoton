@@ -574,6 +574,8 @@ def bfs_sm_shortest_cormen(graph, start):
 
 
 
+
+
 #
 # from Cormen etc.
 #
@@ -594,18 +596,8 @@ def topological_sort(graph):
     sorted_f = sorted(f_as_tuplelist, key=sortkey, reverse=True)
     # return only the keys
     return [k for (k,v) in sorted_f]
-#
-#graph_figure_22_7 = Graph( {   'socks':    [ 'shoes' ],
-#                               'shoes':    [ ],
-#                               'pants':    [ 'shoes', 'trousers' ],
-#                               'trousers': [ 'shoes', 'belt' ],
-#                               'belt':     [ 'jacket' ],
-#                               'shirt':    [ 'belt', 'tie' ],
-#                               'tie':      [ 'jacket' ],
-#                               'jacket':   [ ],
-#                               'watch':    [ ]                         })
-#
-#print topological_sort(graph_figure_22_7)
+
+
 
 
 
@@ -661,6 +653,21 @@ def reachable(graph, root):
 # output:
 #  - ordering: the strongly connected components in the graph (as list of sets)
 #
+# Notes on correctness:
+#  - note that components in graph are the same as in transpose(graph), by def.
+#  - basic argument is that when a node is picked in the second DFS, the traversal will 
+#    visit all nodes in its component but will not visit nodes belonging to other components
+#  - first case easy since by def. there is a path between all nodes in a component
+#     - by induction no traversal has visited nodes in the component so no nodes greyed out
+#  - second case more involved:
+#     - assume that while traversing C -- in transposed(graph) -- there's an edge to C': C -> C'
+#     - argue that all nodes in C' are greyed out already (so that they will be ignored)
+#     - enough to show that EXISTS x' \in C' : ALL x \in C : f[x'] > f[x] (ie f(C') > f(C))
+#     - but if C -> C' in transposed(graph) then C' -> C in graph, so in first DFS:
+#        - if x' picked before any x \in C then all x \in C will be finished before x'
+#          since C' -> C edge will mean visiting all x \in C not already greyed
+#        - if some x \in C picked before x' then all x \in C not already greyed will be visited
+#          yet no x \in C will be, since C' -> C imply C -/-> C' when C, C' are maximum
 def strongly_connected_components(graph):
     # use first DFS to get finished times
     _,_,f1 = timeddfs_sm_any_cormen_extended(graph)
@@ -680,22 +687,7 @@ def strongly_connected_components(graph):
         component = reachable(trees, root)
         components.append(component)
     return components
-#
-#graph = Graph( { 0: [1], 1: [2,6], 2: [0,1,3,4], 3: [1], 4: [2,5], 5: [4], 6: [7], 7: [6] } )
-#print strongly_connected_components(graph)
-#
-#graph_figure_22_9 = Graph( {   'a':    [ 'b' ],
-#                               'b':    [ 'c', 'e', 'f' ],
-#                               'c':    [ 'd', 'g' ],
-#                               'd':    [ 'c', 'h' ],
-#                               'e':    [ 'a', 'f' ],
-#                               'f':    [ 'g' ],
-#                               'g':    [ 'f', 'h' ],
-#                               'h':    [ 'h' ]             })
-#print strongly_connected_components(graph_figure_22_9)
-#
-#graph = Graph( { 0: [1], 1: [2], 2: [0,1,3,4], 3: [], 4: [5], 5: [4], 6: [7], 7: [6] } )
-#print strongly_connected_components(graph)
+
 
 
 
