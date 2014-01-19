@@ -21,11 +21,7 @@ def insertion_sort(list_to_sort):
 			list_to_sort[i+1] = list_to_sort[i]
 			i = i - 1
 		list_to_sort[i+1] = key
-		
-		
-l = [5,2,4,6,7,1,3]
-insertion_sort(l)
-print l
+
 
 
 
@@ -84,9 +80,6 @@ def merge_sort(list_to_sort, p=0, r=None):
 		# merge the two sorted branches
 		_merge_sort_merge(list_to_sort, p, q+1, r)
 
-l = [5,2,4,6,7,1,3]
-merge_sort(l)
-print l
 
 
 
@@ -96,7 +89,52 @@ print l
 
 
 
+#
+# best case: O(n**2)
+#
+# worst case: O(n**2)
+#
+# average case: O(n**2)
+#
+# amortised: only invoked once
+#
+def bubble_sort(list_to_sort):
+	for i in xrange(len(list_to_sort)):
+		for j in xrange(len(list_to_sort) - 1, i, -1):
+			if list_to_sort[j] < list_to_sort[j - 1]:
+				temp = list_to_sort[j]
+				list_to_sort[j] = list_to_sort[j - 1]
+				list_to_sort[j - 1] = temp
 
+
+#
+# best case: O(n)
+#
+def bubble_sort_optimised(list_to_sort):
+	for i in xrange(len(list_to_sort)):
+		swapped = False
+		for j in xrange(len(list_to_sort) - 1, i, -1):
+			if list_to_sort[j] < list_to_sort[j - 1]:
+				temp = list_to_sort[j]
+				list_to_sort[j] = list_to_sort[j - 1]
+				list_to_sort[j - 1] = temp
+				swapped = True
+		if not swapped: return
+
+
+
+
+
+
+
+
+#
+# best case: O(n * lg n)
+#
+# worst case: O(n * lg n)
+#
+# average case: O(n * lg n)
+#
 def subset2_sum(list_of_numbers, target):
 	merge_sort(list_of_numbers)   # sorted in-place
 	lower = 0
@@ -125,6 +163,16 @@ def subset2_sum(list_of_numbers, target):
 
 
 
+#
+# best case: O(lg n)
+#
+# worst case: O(lg n)
+#
+# average case: O(lg n)
+#
+# notes:
+#  - assumes 'numbers' to be sorted in increasing order
+#
 def binary_search_mustbe_recursive(numbers, target, lower=0, upper=None):
 	if upper == None: upper = len(numbers) - 1
 	# check if we're at the bottom
@@ -144,7 +192,7 @@ def binary_search_mustbe_recursive(numbers, target, lower=0, upper=None):
 		return binary_search_mustbe_recursive(numbers, target, middle + 1, upper)
 		
 
-def binary_search_mustbe_while(numbers, target, lower=0, upper=None):
+def binary_search_mustbe_iterative(numbers, target, lower=0, upper=None):
 	if upper == None: upper = len(numbers) - 1
 	while lower < upper:
 		middle = (lower + upper) // 2
@@ -179,7 +227,7 @@ def binary_search_shouldbe_recursive(numbers, target, lower=0, upper=None):
 		return binary_search_shouldbe_recursive(numbers, target, middle + 1, upper)
 
 
-def binary_search_shouldbe_while(numbers, target, lower=0, upper=None):
+def binary_search_shouldbe_iterative(numbers, target, lower=0, upper=None):
 	if upper == None: upper = len(numbers) - 1
 	while lower < upper:
 		middle = (lower + upper) // 2
@@ -193,8 +241,27 @@ def binary_search_shouldbe_while(numbers, target, lower=0, upper=None):
 	return lower
 
 
+
+
+
+
+
+
+
+
+
+#
+# best case: O(lg n)
+#
+# worst case: O(lg n)
+#
+# average case: O(lg n)
+#
+# notes:
+#  - assumes 'numbers' to be sorted in increasing order
+#
 def closest_match(numbers, target):
-	index = binary_search_shouldbe_while(numbers, target)
+	index = binary_search_shouldbe_iterative(numbers, target)
 	if target == numbers[index]: return index
 	elif target < numbers[index]:
 		# look here, or next different numbers on the left
