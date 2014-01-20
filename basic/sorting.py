@@ -306,6 +306,9 @@ class Heap:
 		return 2*i + 2
 
 	def print_list(self):
+		print self._heap[:self._heapsize]
+
+	def print_full_list(self):
 		print self._heap
 
 	def print_tree(self, i=0, indent="", step="  "):
@@ -403,7 +406,7 @@ class Heap:
 	#  for max-priority queue  #
 	############################
 		
-	# assumes we have a max-heap	
+	# assumes we have a max-heap
 	def max_maximum(self):
 		return self._heap[0]
 		
@@ -430,6 +433,13 @@ class Heap:
 		self._heap[i] = key
 		
 	# assumes we have a max-heap
+	def max_decrease_key(self, i, key):
+		if key > self._heap[i]: raise ValueError("New key is larger than current key")
+		# update current index
+		self._heap[i] = key
+		self.max_heapify(i)
+		
+	# assumes we have a max-heap
 	#  - see http://docs.python.org/2/library/exceptions.html for reason behind choice of exception
 	def max_insert(self, key):
 		if not self._heapsize < len(self._heap): raise ValueError("Not enough room in array")
@@ -437,6 +447,57 @@ class Heap:
 		# traverse towards the top for the right location, swapping elements on the way
 		i = self._heapsize - 1
 		while i > 0 and self._heap[self.parent(i)] < key:
+			self._heap[i] = self._heap[self.parent(i)]
+			i = self.parent(i)
+		# update value at the index we found
+		self._heap[i] = key
+		
+		
+	############################
+	#  for min-priority queue  #
+	############################
+		
+	# assumes we have a min-heap	
+	def min_minimum(self):
+		return self._heap[0]
+		
+	# assumes we have a min-heap
+	def min_extract(self):
+		if self._heapsize < 1: return None
+		min = self._heap[0]
+		# remove current min and replace with one of the largest numbers
+		self._heap[0] = self._heap[self._heapsize - 1]
+		self._heapsize -= 1
+		# find next minimum element
+		self.min_heapify(0)
+		return min
+		
+	# assumes we have a min-heap
+	#  - see http://docs.python.org/2/library/exceptions.html for reason behind choice of exception
+	def min_decrease_key(self, i, key):
+		if key > self._heap[i]: raise ValueError("New key is larger than current key")
+		# traverse towards the top for the right location, swapping elements on the way
+		while i > 0 and self._heap[self.parent(i)] > key:
+			self._heap[i] = self._heap[self.parent(i)]
+			i = self.parent(i)
+		# update value at the index we found
+		self._heap[i] = key
+	
+	# assumes we have a min-heap
+	def min_increase_key(self, i, key):
+		if key < self._heap[i]: raise ValueError("New key is smaller than current key")
+		# update current index
+		self._heap[i] = key
+		self.min_heapify(i)
+		
+	# assumes we have a min-heap
+	#  - see http://docs.python.org/2/library/exceptions.html for reason behind choice of exception
+	def min_insert(self, key):
+		if not self._heapsize < len(self._heap): raise ValueError("Not enough room in array")
+		self._heapsize += 1
+		# traverse towards the top for the right location, swapping elements on the way
+		i = self._heapsize - 1
+		while i > 0 and self._heap[self.parent(i)] > key:
 			self._heap[i] = self._heap[self.parent(i)]
 			i = self.parent(i)
 		# update value at the index we found
@@ -456,12 +517,3 @@ class Heap:
 def heap_sort(list_to_sort):
 	heap = Heap(list_to_sort)
 	heap.sort_max()
-	
-	
-	
-	
-	
-	
-	
-	
-h1 = Heap([16, 14, 10, 8, 7, 9, 3, 2, 4, 1])
