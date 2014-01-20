@@ -378,7 +378,7 @@ class Heap:
 	
 	# sorts the underlying list in increasing order
 	#  - worst-case running time is O(n * lg n)
-	def sort_max(self):
+	def sort_increasing(self):
 		self.build_max_heap()
 		for i in xrange(len(self._heap)-1, 0, -1):
 			# swap trick from stack overflow
@@ -390,7 +390,7 @@ class Heap:
 			
 	# sorts the underlying list in decreasing order
 	#  - worst-case running time is O(n * lg n)
-	def sort_min(self):
+	def sort_decreasing(self):
 		self.build_min_heap()
 		# smallest element at root, so 
 		for i in xrange(len(self._heap)-1, 0, -1):
