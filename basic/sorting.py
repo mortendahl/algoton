@@ -7,8 +7,6 @@
 #
 # average case: half of worst case, since for each element, half will be higher so half will be shifted
 #
-# amortised: only invoked once
-#
 # space: in-place
 #
 def insertion_sort(list_to_sort):
@@ -32,21 +30,7 @@ def insertion_sort(list_to_sort):
 
 
 
-#
-# best case: O(n * lg n)
-#
-# worst case: O(n * lg n)
-#
-# average case: O(n * lg n)
-#
-# amortised: only invoked once
-#
-# space: O(n) since in top step the entire list is copied
-#
-# note: 
-#  - because of the use of recursion, we might exhaust the stack; however, this seems to happen only 
-#    around depth 1000, which means the list must have length around 2**1000, ie astronomical
-#
+
 def _merge_sort_merge(list_to_sort, p, q, r):
 	left = list_to_sort[p:q]
 	right = list_to_sort[q:r+1]
@@ -68,7 +52,19 @@ def _merge_sort_merge(list_to_sort, p, q, r):
 			list_to_sort[k] = right[j]
 			j += 1
 
-
+#
+# best case: O(n * lg n)
+#
+# worst case: O(n * lg n)
+#
+# average case: O(n * lg n)
+#
+# space: O(n) since in top step the entire list is copied
+#
+# note: 
+#  - because of the use of recursion, we might exhaust the stack; however, this seems to happen only 
+#    around depth 1000, which means the list must have length around 2**1000, ie astronomical
+#
 def merge_sort(list_to_sort, p=0, r=None):
 	if r == None: r = len(list_to_sort) - 1
 	if p < r:
@@ -96,11 +92,11 @@ def merge_sort(list_to_sort, p=0, r=None):
 #
 # average case: O(n**2)
 #
-# amortised: only invoked once
+# space: in-place
 #
 def bubble_sort(list_to_sort):
 	for i in xrange(len(list_to_sort)):
-		for j in xrange(len(list_to_sort) - 1, i, -1):
+		for j in xrange(len(list_to_sort)-1, i, -1):
 			if list_to_sort[j] < list_to_sort[j - 1]:
 				temp = list_to_sort[j]
 				list_to_sort[j] = list_to_sort[j - 1]
@@ -113,7 +109,7 @@ def bubble_sort(list_to_sort):
 def bubble_sort_optimised(list_to_sort):
 	for i in xrange(len(list_to_sort)):
 		swapped = False
-		for j in xrange(len(list_to_sort) - 1, i, -1):
+		for j in xrange(len(list_to_sort)-1, i, -1):
 			if list_to_sort[j] < list_to_sort[j - 1]:
 				temp = list_to_sort[j]
 				list_to_sort[j] = list_to_sort[j - 1]
@@ -318,10 +314,10 @@ class Heap:
 		self.print_tree(self.left(i), indent+step)
 		self.print_tree(self.right(i), indent+step)
 		
-	# assuming heaps at left(i) and right(i) are max-heaps, turns heap at i into max-heap
+	# turns heap at i into max-heap
+	#  - assuming heaps at left(i) and right(i) are max-heaps
 	#  - worst-case running time is O(h) where h = ln n is height of tree rooted at i
 	def max_heapify(self, i):
-		print "max heapify"
 		largest = i
 		l = self.left(i)
 		if l < self._heapsize and self._heap[l] > self._heap[i]: largest = l
@@ -330,10 +326,12 @@ class Heap:
 		if largest != i:
 			# swap trick from stack overflow
 			#  - supposedly works because Python first evaluates all of the right side
+			#  - uses two temp variables instead of one, but easier to read
 			self._heap[i], self._heap[largest] = self._heap[largest], self._heap[i]
 			self.max_heapify(largest)
 	
-	# assuming heaps at left(i) and right(i) are min-heaps, turns heap at i into min-heap
+	# turns heap at i into min-heap
+	#  - assuming heaps at left(i) and right(i) are min-heaps
 	#  - worst-case running time is O(h) where h = ln n is height of tree rooted at i
 	def min_heapify(self, i):
 		smallest = i
@@ -344,8 +342,14 @@ class Heap:
 		if smallest != i:
 			# swap trick from stack overflow
 			#  - supposedly works because Python first evaluates all of the right side
+			#  - uses two temp variables instead of one, but easier to read
 			self._heap[i], self._heap[smallest] = self._heap[smallest], self._heap[i]
 			self.min_heapify(smallest)
+	
+	
+	###################
+	#  for heap_sort  #
+	###################
 	
 	# transforms array into max-heap
 	#  - worst-case running time is O(n)
@@ -368,27 +372,77 @@ class Heap:
 		# loop from 'lastparent' down to 0
 		for i in xrange(lastparent, -1, -1):
 			self.min_heapify(i)
-			
+	
+	# sorts the underlying list in increasing order
+	#  - worst-case running time is O(n * lg n)
 	def sort_max(self):
 		self.build_max_heap()
 		for i in xrange(len(self._heap)-1, 0, -1):
 			# swap trick from stack overflow
 			#  - supposedly works because Python first evaluates all of the right side
+			#  - uses two temp variables instead of one, but easier to read
 			self._heap[0], self._heap[i] = self._heap[i], self._heap[0]
 			self._heapsize -= 1
 			self.max_heapify(0)
-			self.print_list()
 			
+	# sorts the underlying list in decreasing order
+	#  - worst-case running time is O(n * lg n)
 	def sort_min(self):
 		self.build_min_heap()
 		# smallest element at root, so 
 		for i in xrange(len(self._heap)-1, 0, -1):
 			# swap trick from stack overflow
 			#  - supposedly works because Python first evaluates all of the right side
+			#  - uses two temp variables instead of one, but easier to read
 			self._heap[0], self._heap[i] = self._heap[i], self._heap[0]
 			self._heapsize -= 1
 			self.min_heapify(0)
-
+		
+	
+	############################
+	#  for max-priority queue  #
+	############################
+		
+	# assumes we have a max-heap	
+	def max_maximum(self):
+		return self._heap[0]
+		
+	# assumes we have a max-heap
+	def max_extract(self):
+		if self._heapsize < 1: return None
+		max = self._heap[0]
+		# remove current max and replace with one of the smallest numbers
+		self._heap[0] = self._heap[self._heapsize - 1]
+		self._heapsize -= 1
+		# find next maximum element
+		self.max_heapify(0)
+		return max
+		
+	# assumes we have a max-heap
+	#  - see http://docs.python.org/2/library/exceptions.html for reason behind choice of exception
+	def max_increase_key(self, i, key):
+		if key < self._heap[i]: raise ValueError("New key is smaller than current key")
+		# traverse towards the top for the right location, swapping elements on the way
+		while i > 0 and self._heap[self.parent(i)] < key:
+			self._heap[i] = self._heap[self.parent(i)]
+			i = self.parent(i)
+		# update value at the index we found
+		self._heap[i] = key
+		
+	# assumes we have a max-heap
+	#  - see http://docs.python.org/2/library/exceptions.html for reason behind choice of exception
+	def max_insert(self, key):
+		if not self._heapsize < len(self._heap): raise ValueError("Not enough room in array")
+		self._heapsize += 1
+		# traverse towards the top for the right location, swapping elements on the way
+		i = self._heapsize - 1
+		while i > 0 and self._heap[self.parent(i)] < key:
+			self._heap[i] = self._heap[self.parent(i)]
+			i = self.parent(i)
+		# update value at the index we found
+		self._heap[i] = key
+		
+		
 
 #
 # best case: O(n * lg n)
@@ -402,5 +456,12 @@ class Heap:
 def heap_sort(list_to_sort):
 	heap = Heap(list_to_sort)
 	heap.sort_max()
-
 	
+	
+	
+	
+	
+	
+	
+	
+h1 = Heap([16, 14, 10, 8, 7, 9, 3, 2, 4, 1])
