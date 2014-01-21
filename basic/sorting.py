@@ -1,24 +1,34 @@
 
 
+#####################
 #
-# best case: O(n), when already sorted so no shifting
+#  Insertion sort 
 #
-# worst case: O(n**2), when already sorted in decreasing order all elements willl be shifted
 #
-# average case: half of worst case, since for each element, half will be higher so half will be shifted
+#  - Cormen et al. p15-27
 #
-# space: in-place
+#  - example:
+#     - j=1, i=0: [2,4,1,3], [2,4,1,3]
+#     - j=2, i=1: [2,4,1,3], i=0: [2,4,4,3], i=-1: [2,2,4,3], [1,2,4,3]
+#     - j=3, i=2: [1,2,4,3], i=1: [1,2,4,4], [1,2,3,4]
 #
-def insertion_sort(list_to_sort):
+#  - worst case: O(n**2), when already sorted in decreasing order all elements willl be shifted
+#  - best case: O(n), when already sorted so no shifting
+#  - average case: half of worst case, since for each element, half will be higher so half will be shifted
+#  - space: in-place
+#
+
+def insertion_sort(numbers):
 	# from head to tail
-	for j in xrange(1, len(list_to_sort)):
-		key = list_to_sort[j]
+	# loop-invariant: sub-array numbers[0..j-1] sorted
+	for j in xrange(1, len(numbers)):
+		key = numbers[j]
 		i = j - 1
 		# from current index to head, find index for 'key' and shift larger elements
-		while i >= 0 and list_to_sort[i] > key:
-			list_to_sort[i+1] = list_to_sort[i]
+		while i >= 0 and numbers[i] > key:
+			numbers[i+1] = numbers[i]
 			i = i - 1
-		list_to_sort[i+1] = key
+		numbers[i+1] = key
 
 
 
@@ -30,51 +40,84 @@ def insertion_sort(list_to_sort):
 
 
 
+#####################
+#
+#  Merge sort
+#
+#
+#  - Cormen et al. p28-36
+#
+#  - example:
+#    merge_sort([4,2,3,1], p=0, r=3): q = 1
+#                *******
+#      merge_sort([4,2,3,1], p=0, r=1): q = 0
+#                  ***
+#        merge_sort([4,2,3,1], p=0, r=0)
+#                    *
+#        merge_sort([4,2,3,1], p=1, r=1)
+#                      *
+#        _merge_sort_merge([4,2,3,1], p=0, q=1, r=1): k=0: [2,2,3,1], k=1: [2,4,3,1]
+#                           ***
+#      merge_sort([2,4,3,1], p=2, r=3): q = 2:
+#                      ***
+#        merge_sort([2,4,3,1], p=2, r=2)
+#                        *
+#        merge_sort([2,4,3,1], p=3, r=3)
+#                          *
+#        _merge_sort_merge([2,4,3,1], p=2, q=3, r=3): k=2: [2,4,1,1], k=3: [2,4,1,3]
+#                               ***
+#      _merge_sort_merge([2,4,1,3], p=0, q=2, r=3): k=0: [1,4,1,3], k=1: [1,2,1,3], k=2: [1,2,3,3], k=3: [1,2,3,4]
+#                         *******
+#
+#  - worst case: O(n * lg n)
+#  - best case: O(n * lg n), since nothing makes it stop prematurely
+#  - average case: O(n * lg n), since nothing makes it strop prematurely
+#  - space: O(n), since in top step the entire list is copied in _merge_sort_merge
+#
+#  - notes: 
+#     - because of the use of recursion, we might exhaust the stack; however, this seems to happen only 
+#       around depth 1000, which means the list must have length around 2**1000, i.e. astronomical
+#
 
-def _merge_sort_merge(list_to_sort, p, q, r):
-	left = list_to_sort[p:q]
-	right = list_to_sort[q:r+1]
+# assumes that 'numbers[p:q]' and 'numbers[q:r+1]' are both already sorted increasingly
+# afterwards 'numbers[p:r+1]' are sorted increasingly
+def _merge_sort_merge(numbers, p, q, r):
+	# important that both sub-arrays are copied here since 'numbers[p:r+1]' will be overridden below
+	left = numbers[p:q]
+	right = numbers[q:r+1]
+	# start at head of each sub-array
 	i = 0
 	j = 0
+	# repeated pick the smallest element from the two sub-arrays
+	# loop-invariant: sub-array 'numbers[p..k-1]' contains 'k-p' smallest elements of 'left' and 'right', sorted
 	for k in xrange(p, r+1):
 		if not i < len(left):
 			# we have exhausted 'left' so the rest must be in 'right'
-			list_to_sort[k] = right[j]
+			numbers[k] = right[j]
 			j += 1
 		elif not j < len(right):
 			# we have exhausted 'right' so the rest must be in 'left'
-			list_to_sort[k] = left[i]
+			numbers[k] = left[i]
 			i += 1
 		elif left[i] <= right[j]:
-			list_to_sort[k] = left[i]
+			# pick the next element in 'left', as it is at least as small as the next in 'right'
+			numbers[k] = left[i]
 			i += 1
 		else:
-			list_to_sort[k] = right[j]
+			# pick the next element in 'right', as it is smaller than the next in 'left'
+			numbers[k] = right[j]
 			j += 1
 
-#
-# best case: O(n * lg n)
-#
-# worst case: O(n * lg n)
-#
-# average case: O(n * lg n)
-#
-# space: O(n) since in top step the entire list is copied
-#
-# note: 
-#  - because of the use of recursion, we might exhaust the stack; however, this seems to happen only 
-#    around depth 1000, which means the list must have length around 2**1000, ie astronomical
-#
-def merge_sort(list_to_sort, p=0, r=None):
-	if r == None: r = len(list_to_sort) - 1
+def merge_sort(numbers, p=0, r=None):
+	if r == None: r = len(numbers) - 1
 	if p < r:
 		q = (p + r) // 2
 		# sort left branch
-		merge_sort(list_to_sort, p, q)
+		merge_sort(numbers, p, q)
 		# sort right branch
-		merge_sort(list_to_sort, q+1, r)
+		merge_sort(numbers, q+1, r)
 		# merge the two sorted branches
-		_merge_sort_merge(list_to_sort, p, q+1, r)
+		_merge_sort_merge(numbers, p, q+1, r)
 
 
 
@@ -85,37 +128,58 @@ def merge_sort(list_to_sort, p=0, r=None):
 
 
 
+
+#####################
 #
-# best case: O(n**2)
+#  Bubble sort
 #
-# worst case: O(n**2)
 #
-# average case: O(n**2)
+#  - Cormen et al. p38
 #
-# space: in-place
+#  - example:
+#     - i=0, j=3: [2,4,1,3] -> [2,4,1,3]
+#            j=2: -> [2,1,4,3]
+#            j=1: -> [1,2,4,3]
+#     - i=1, j=3: -> [1,2,3,4]
+#            j=2: -> [1,2,3,4]
+#     - i=2, j=3: -> [1,2,3,4]
 #
-def bubble_sort(list_to_sort):
-	for i in xrange(len(list_to_sort)):
-		for j in xrange(len(list_to_sort)-1, i, -1):
-			if list_to_sort[j] < list_to_sort[j - 1]:
-				temp = list_to_sort[j]
-				list_to_sort[j] = list_to_sort[j - 1]
-				list_to_sort[j - 1] = temp
+#  - worst case: O(n**2)
+#  - best case: O(n**2), since nothing makes it stop prematurely
+#  - average case: O(n**2), since nothing makes it strop prematurely
+#  - space: in-place
+#
+
+def bubble_sort(numbers):
+	# loop-invariant: sub-array numbers[0..i] contains the i+1 smallest numbers, sorted increasingly
+	for i in xrange(len(numbers)-1):
+		# loop-invariant: numbers[j-1] smaller than all numbers in sub-array numbers[j..]
+		for j in xrange(len(numbers)-1, i, -1):
+			if numbers[j] < numbers[j - 1]:
+				temp = numbers[j]
+				numbers[j] = numbers[j - 1]
+				numbers[j - 1] = temp
 
 
+# we can optimise slightly, breaking if nothing was swapped in the inner for-loop:
+#  - numbers[0..i-1] already sorted and smaller than any in numbers[i..] by previous iteration
+#  - this implies numbers[0] < .. < numbers[i]
+#  - since nothing was swapped we also have numbers[j-1] < numbers[j] for j in i+1,...,len(numbers)-1
+#  - this implies numbers[i] < .. < numbers[len(..)-1]
+# 
+# best case: O(n), when already sorted
 #
-# best case: O(n)
-#
-def bubble_sort_optimised(list_to_sort):
-	for i in xrange(len(list_to_sort)):
+def bubble_sort_optimised(numbers):
+	for i in xrange(len(numbers)-1):
 		swapped = False
-		for j in xrange(len(list_to_sort)-1, i, -1):
-			if list_to_sort[j] < list_to_sort[j - 1]:
-				temp = list_to_sort[j]
-				list_to_sort[j] = list_to_sort[j - 1]
-				list_to_sort[j - 1] = temp
+		for j in xrange(len(numbers)-1, i, -1):
+			if numbers[j] < numbers[j - 1]:
+				temp = numbers[j]
+				numbers[j] = numbers[j - 1]
+				numbers[j - 1] = temp
 				swapped = True
 		if not swapped: return
+
 
 
 
