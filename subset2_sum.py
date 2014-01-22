@@ -1,6 +1,9 @@
 
 
 
+
+
+
 #
 # best case: O(n)
 #
@@ -8,6 +11,8 @@
 #
 # average case: O(n)
 #
+
+from sorting import merge_sort
 
 # assumes 'numbers' to be sorted in increasing order
 def subset2_sum(numbers, target):

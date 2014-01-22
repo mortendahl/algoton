@@ -386,10 +386,10 @@ if __name__ == '__main__':
             listcopy = list(testlist)
             algocode = locals()[algoname]
             time = Timer(lambda: algocode(listcopy)).timeit(number=3)
-            print "{0:<55} : {1}".format(algoname, time)
+            print "{0:<55} : {1:.10f}".format(algoname, time)
             gc.collect()
         print ""
-
+        
 
 
 
@@ -412,7 +412,7 @@ if __name__ == '__main__':
             listcopy = list(testlist)
             algocode = locals()[algoname]
             time = Timer(lambda: algocode(listcopy)).timeit(number=3)
-            print "{0:<55} : {1}".format(algoname, time)
+            print "{0:<55} : {1:.10f}".format(algoname, time)
             gc.collect()
         print ""
 
