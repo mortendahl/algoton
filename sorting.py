@@ -8,13 +8,13 @@
 #  - Cormen et al. p15-27
 #
 #  - example:
-#     - j=1, i=0: [2,4,1,3], [2,4,1,3]
-#     - j=2, i=1: [2,4,1,3], i=0: [2,4,4,3], i=-1: [2,2,4,3], [1,2,4,3]
-#     - j=3, i=2: [1,2,4,3], i=1: [1,2,4,4], [1,2,3,4]
+#     - j=1, key=4, i=0: [2,4,1,3] -> [2,4,1,3]
+#     - j=2, key=1, i=1: -> [2,4,4,3], i=0: -> [2,2,4,3], i=-1: -> [1,2,4,3]
+#     - j=3, key=3, i=2: -> [1,2,4,4], i=1: -> [1,2,3,4]
 #
 #  - worst case: O(n**2), when already sorted in decreasing order all elements willl be shifted
 #  - best case: O(n), when already sorted so no shifting
-#  - average case: half of worst case, since for each element, half will be higher so half will be shifted
+#  - average case: half of worst case, since for each element half will be higher so half will be shifted
 #  - space: in-place
 #
 
@@ -264,6 +264,85 @@ def quick_sort(numbers):
 
 #####################
 #
+#  Counting sort
+#
+#
+#  - Cormen et al., section 8.2.......
+#
+#
+#  - worst case: O(n)
+#  - best case: O(n)
+#  - average case: O(n)
+#  - space: O(n)
+#
+
+def counting_sort(numbers):
+    pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####################
+#
+#  Bucket sort (using sub sorting algo)
+#
+#
+#  - Cormen et al., section 8.4.......
+#
+#
+
+def bucket_sort(numbers, sub_sorting_algo):
+    pass
+
+#
+#  using insertion_sort for sub-sorting:
+#
+#  - worst case: O(n**2)
+#  - best case: O(n)
+#  - average case: O(n)
+#  - space: in-place
+#
+
+bucket_sort_insertion_sort = lambda numbers: bucket_sort(numbers, insertion_sort)
+
+#
+#  using merge_sort for sub-sorting:
+#
+#  - worst case: O(n * lg n)
+#  - best case: O(n * lg n)
+#  - average case: O(n)
+#  - space: in-place
+#
+
+bucket_sort_merge_sort = lambda numbers: bucket_sort(numbers, merge_sort)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####################
+#
 #  Tests
 #
         
@@ -278,14 +357,19 @@ if __name__ == '__main__':
 
 
     def native_sort(numbers):
-	    numbers.sort()
+        numbers.sort()
 
 
     
 
     print "\n*** Tests, all algos ***\n"
 
-    tests = [   random.sample(xrange(10000), 5000),
+    tests = [   random.sample(xrange(100000),    10),
+                random.sample(xrange(100000),    50),
+                random.sample(xrange(100000),   100),
+                random.sample(xrange(100000),   500),
+                random.sample(xrange(100000),  1000),
+                random.sample(xrange(100000),  5000),
                 random.sample(xrange(100000), 10000)   ]
 
     algos = [   "bubble_sort",
@@ -313,8 +397,8 @@ if __name__ == '__main__':
 
     print "\n*** Tests, fast algos ***\n"
 
-    tests = [   random.sample(xrange(1000000), 20000),
-                random.sample(xrange(1000000), 40000),
+    tests = [   random.sample(xrange(10000000),  20000),
+                random.sample(xrange(10000000),  40000),
                 random.sample(xrange(10000000), 100000),   ]
 
     algos = [   "heap_sort",

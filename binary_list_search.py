@@ -11,9 +11,9 @@
 #     - in the latter case this means that 'numbers' with 'numbers[index] = target' is still sorted
 #     - note that this is NOT necessarily the closest match in the array: it may be either to the immediate left or right
 #
-#  - worst case: O(lg n)
+#  - worst case: O(lg n), when it has to visit a leaf
 #  - best case: O(1), when 'target' found as first middle
-#  - average case: O(lg n)
+#  - average case: O(lg n), half of worst case
 #
 #  - notes:
 #     - assumes 'numbers' to be sorted in increasing order
@@ -89,9 +89,9 @@ binary_list_search = binary_list_search_iterative
 #
 #  - the returned index is either the index of 'target' or its closest match in terms of absolute value
 #
-#  - worst case: O(lg n)
-#  - best case: O(1)
-#  - average case: O(lg n)
+#  - worst case: O(lg n), binary search + O(1)
+#  - best case: O(1), binary search + O(1)
+#  - average case: O(lg n), binary search + O(1)
 #
 #  - notes:
 #     - assumes 'numbers' to be sorted in increasing order

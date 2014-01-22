@@ -62,6 +62,8 @@ class MaxPriorityQueue(MaxHeap):
 
 
 
+
+
 # all methods assume we have a min-heap
 #  - see http://docs.python.org/2/library/exceptions.html for reason behind choice of exception
 
