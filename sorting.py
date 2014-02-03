@@ -40,6 +40,9 @@ def insertion_sort(numbers):
 
 
 
+
+
+
 #####################
 #
 #  Merge sort
@@ -80,7 +83,7 @@ def insertion_sort(numbers):
 #
 
 def merge_sort(numbers, p=0, r=None):
-    if r == None: r = len(numbers) - 1
+    if r is None: r = len(numbers) - 1
     if p < r:
         q = (p + r) // 2
         # sort left branch
@@ -118,6 +121,9 @@ def _merge_sort_merge(numbers, p, q, r):
             # pick the next element in 'right', as it is smaller than the next in 'left'
             numbers[k] = right[j]
             j += 1
+
+
+
 
 
 
@@ -194,6 +200,8 @@ def bubble_sort_optimised(numbers):
 
 
 
+
+
 #####################
 #
 #  Heap sort
@@ -237,17 +245,92 @@ def heap_sort(numbers):
 #
 #  - Cormen et al., section 7.......
 #
+
+def quick_sort(quick_sort_partition, numbers, p=0, r=None):
+    if r is None: r = len(numbers)-1
+    if p < r:
+        q = quick_sort_partition(numbers, p, r)
+        quick_sort(quick_sort_partition, numbers, p, q-1)
+        quick_sort(quick_sort_partition, numbers, q+1, r)
+
 #
-#  - worst case: O(n * lg n)
+#  randomised version
+#
+
+import random
+
+def quick_sort_randomised(quick_sort_partition, numbers, p=0, r=None):
+    if r is None: r = len(numbers)-1
+    if p < r:
+        # pick random integer from [p..r] (both inclusive)
+        i = random.randint(p, r)
+        # let this be the pivot position
+        numbers[r], numbers[i] = numbers[i], numbers[r]
+        # partition as in deterministic version
+        q = quick_sort_partition(numbers, p, r)
+        quick_sort_randomised(quick_sort_partition, numbers, p, q-1)
+        quick_sort_randomised(quick_sort_partition, numbers, q+1, r)
+        
+#
+#  semi-iterative version
+#
+#   - not completely tail recursive, but by recursing only on smaller 
+#     partition we can limit stack size to O(lg n)
+#   - we could do the same for the randomised version
+#
+
+def quick_sort_iterative(quick_sort_partition, numbers, p=0, r=None):
+    if r is None: r = len(numbers)-1
+    while p < r:
+        q = quick_sort_partition(numbers, p, r)
+        # assume that p <= q <= r (satisfied by Lomuto's partitioning)
+        if q-p < r-q:
+            # left partition is smallest
+            quick_sort_iterative(quick_sort_partition, numbers, p, q-1)
+            p = q+1
+        else:
+            # right partition is smallest
+            quick_sort_iterative(quick_sort_partition, numbers, q+1, r)
+            r = q-1
+
+#
+#  Lomuto's partitioning
+#
+#  - worst case: O(n**2)
 #  - best case: O(n * lg n)
 #  - average case: O(n * lg n)
 #  - space: in-place
 #
+#  - example, numbers=[3,9,7,6,1,4], p=0, r=5:
+#     - x=4, i=-1, j=0 -> [3,9,7,6,1,4], i=0
+#                  j=1 -> [3,9,7,6,1,4], i=0
+#                  j=2 -> [3,9,7,6,1,4], i=0
+#                  j=3 -> [3,9,7,6,1,4], i=0
+#                  j=4 -> [3,1,7,6,9,4], i=1
+#                      -> [3,1,4,6,9,7]
+#
+#  - example, numbers[1,3,4,6,9,7], p=3, r=5:
+#     - x=7, i=2, j=3 -> [1,3,4,6,9,7], i=3
+#                 j=4 -> [1,3,4,6,9,7], i=3
+#                     -> [1,3,4,6,7,9]
+#
 
-def quick_sort(numbers):
-    pass
+def quick_sort_partition_lomuto(numbers, p, r):
+    x = numbers[r]  # pivot
+    i = p - 1
+    # loop-invariant: numbers[p..i] <= x < numbers[i+1..j-1]
+    for j in xrange(p, r):
+        if numbers[j] <= x:
+            i += 1
+            numbers[i], numbers[j] = numbers[j], numbers[i]
+    numbers[i+1], numbers[r] = numbers[r], numbers[i+1]
+    return i+1
 
+quick_sort_lomuto = lambda numbers: quick_sort(quick_sort_partition_lomuto, numbers)
 
+quick_sort_lomuto_randomised = lambda numbers: quick_sort_randomised(quick_sort_partition_lomuto, numbers)
+
+quick_sort_lomuto_iterative = lambda numbers: quick_sort_iterative(quick_sort_partition_lomuto, numbers)
 
 
 
@@ -276,10 +359,22 @@ def quick_sort(numbers):
 #  - space: O(n)
 #
 
-def counting_sort(numbers):
-    pass
-
-
+# assumes that all numbers are non-negative and no larger than max_number
+def counting_sort(numbers, max_number=None):
+    if max_number is None: max_number = max(numbers)
+    # count numbers
+    count = [0]*(max_number+1)
+    for n in numbers: count[n] += 1
+    # update count to positions
+    for i in xrange(1, max_number+1): count[i] = count[i-1] + count[i]
+    # write out result
+    result = [0]*len(numbers)
+    for i in xrange(len(numbers)-1, -1, -1):
+        pos = count[numbers[i]] - 1
+        count[numbers[i]] -= 1
+        result[pos] = numbers[i]
+    # write back into input list
+    for i,n in enumerate(result): numbers[i] = n
 
 
 
@@ -300,10 +395,26 @@ def counting_sort(numbers):
 #
 #  - Cormen et al., section 8.4.......
 #
-#
 
-def bucket_sort(numbers, sub_sorting_algo):
-    pass
+import itertools
+
+# assumes sub_sorting_algo to sort in-place
+def bucket_sort(sub_sorting_algo, numbers, max_number=None, no_buckets=None):
+    if max_number is None: max_number = max(numbers)
+    if no_buckets is None: no_buckets = len(numbers) / 3 # expect three numbers in each bucket
+    factor = max_number / float(no_buckets-1)
+    # initialise buckets
+    buckets = [None]*no_buckets
+    for bucket in xrange(no_buckets): buckets[bucket] = []
+    # partition numbers into buckets
+    for n in numbers:
+        bucket = int(n/factor)
+        buckets[bucket].append(n)
+    # sort each bucket
+    for bucket in xrange(no_buckets): sub_sorting_algo(buckets[bucket])
+    # write back into input list
+    sorted_numbers = (number for bucket in buckets for number in bucket)
+    for i,n in enumerate(sorted_numbers): numbers[i] = n
 
 #
 #  using insertion_sort for sub-sorting:
@@ -311,21 +422,24 @@ def bucket_sort(numbers, sub_sorting_algo):
 #  - worst case: O(n**2)
 #  - best case: O(n)
 #  - average case: O(n)
-#  - space: in-place
+#  - space: O(n)
 #
 
-bucket_sort_insertion_sort = lambda numbers: bucket_sort(numbers, insertion_sort)
+bucket_sort_insertion_sort = lambda numbers: bucket_sort(insertion_sort, numbers)
 
 #
 #  using merge_sort for sub-sorting:
 #
 #  - worst case: O(n * lg n)
-#  - best case: O(n * lg n)
+#  - best case: O(n)
 #  - average case: O(n)
-#  - space: in-place
+#  - space: O(n)
+#
+#  - notes:
+#     - likely to still be worse than using insertion_sort when the buckets are small
 #
 
-bucket_sort_merge_sort = lambda numbers: bucket_sort(numbers, merge_sort)
+bucket_sort_merge_sort = lambda numbers: bucket_sort(merge_sort, numbers)
 
 
 
@@ -377,7 +491,12 @@ if __name__ == '__main__':
                 "insertion_sort",
                 "heap_sort",
                 "merge_sort",
-                "quick_sort",
+                #"quick_sort_lomuto",
+                "quick_sort_lomuto_randomised",
+                "quick_sort_lomuto_iterative",
+                "counting_sort",
+                "bucket_sort_insertion_sort",
+                "bucket_sort_merge_sort",
                 "native_sort"      ]
 
     for testlist in tests:
@@ -392,7 +511,8 @@ if __name__ == '__main__':
         
 
 
-
+    exit(0)
+    
 
 
     print "\n*** Tests, fast algos ***\n"

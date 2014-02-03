@@ -3,11 +3,26 @@
 
 
 
-
-
+#####################
 #
-# heap structure, for min-heaps and max-heaps
+#  Heap structure, for min-heaps and max-heaps
 #
+#
+#  - Cormen et al., section 6.1-6.3
+#
+#  - example:
+#     - max-heap [16,14,10,8,7,9,3,2,4,1] has tree structure:
+#
+#                               16 [0]
+#                   14 [1]                  10 [2]
+#           8 [3]           7 [4]       9 [5]       3 [6]
+#       2 [7]    4 [8]  1 [9]   
+#
+#      - i.e. each node is bigger than all of its children
+#      - note that this does NOT imply that then array is sorted
+#      - ... nor that it is a binary search tree
+#
+
 class Heap:
     
     def __init__(self, heap=[]):
@@ -44,13 +59,6 @@ class Heap:
 
 
 
-
-
-
-
-
-
-
 class MaxHeap(Heap):
     
     def __init__(self, heap=[]):
@@ -58,7 +66,7 @@ class MaxHeap(Heap):
         
     # turns heap at i into max-heap
     #  - assuming heaps at left(i) and right(i) are max-heaps
-    #  - worst-case running time is O(h) where h = ln n is height of tree rooted at i
+    #  - worst-case running time is O(h_i) where h_i = ln n is height of tree rooted at i
     def max_heapify(self, i):
         largest = i
         l = self.left(i)
@@ -73,13 +81,15 @@ class MaxHeap(Heap):
             self.max_heapify(largest)
     
     # transforms array into max-heap
-    #  - worst-case running time is O(n)
+    #  - worst-case running time is O(n), see Cormen et al. p133-135
     def build_max_heap(self):
         arraysize = len(self._heap)
         self._heapsize = arraysize
-        # the last parent must be at index i mid-way in the array since left(i)/right(i) would overflow
+        # the last parent must be at index 'lastparent' mid-way in the array 
+        #  - since 'left(lastparent)' and 'right(lastparent)' would overflow
         lastparent = (arraysize // 2) - 1
-        # loop from 'lastparent' down to 0
+        # loop from 'lastparent' down to 0 (root)
+        # loop-invariant: 'i' is the root of a max-heap
         for i in xrange(lastparent, -1, -1):
             self.max_heapify(i)
 
@@ -87,6 +97,7 @@ class MaxHeap(Heap):
     #  - worst-case running time is O(n * lg n)
     def sort_increasing(self):
         self.build_max_heap()
+        # loop-invariant: heap[i..] contains the (n-i)th largest numbers in sorted order
         for i in xrange(len(self._heap)-1, 0, -1):
             # swap trick from stack overflow
             #  - supposedly works because Python first evaluates all of the right side
@@ -94,11 +105,8 @@ class MaxHeap(Heap):
             self._heap[0], self._heap[i] = self._heap[i], self._heap[0]
             self._heapsize -= 1
             self.max_heapify(0)
-
-
-
-
-
+        # at this point there's only one item left in the heap, at the root, which must 
+        # be the smallest element and located at heap[0] -- hence heap[0..] is sorted
 
 
 
@@ -115,7 +123,7 @@ class MinHeap(Heap):
     
     # turns heap at i into min-heap
     #  - assuming heaps at left(i) and right(i) are min-heaps
-    #  - worst-case running time is O(h) where h = ln n is height of tree rooted at i
+    #  - worst-case running time is O(h_i) where h_i = ln n is height of tree rooted at i
     def min_heapify(self, i):
         smallest = i
         l = self.left(i)
@@ -130,13 +138,15 @@ class MinHeap(Heap):
             self.min_heapify(smallest)
 
     # transforms array into min-heap
-    #  - worst-case running time is O(n)
+    #  - worst-case running time is O(n), see Cormen et al. p133-135
     def build_min_heap(self):
         arraysize = len(self._heap)
         self._heapsize = arraysize
-        # the last parent must be at index i mid-way in the array since left(i)/right(i) would overflow
+        # the last parent must be at index 'lastparent' mid-way in the array 
+        #  - since 'left(lastparent)' and 'right(lastparent)' would overflow
         lastparent = (arraysize // 2) - 1
-        # loop from 'lastparent' down to 0
+        # loop from 'lastparent' down to 0 (root)
+        # loop-invariant: 'i' is the root of a min-heap
         for i in xrange(lastparent, -1, -1):
             self.min_heapify(i)
             
@@ -144,7 +154,7 @@ class MinHeap(Heap):
     #  - worst-case running time is O(n * lg n)
     def sort_decreasing(self):
         self.build_min_heap()
-        # smallest element at root, so 
+        # loop-invariant: heap[i..] contains the (n-i)th smallest numbers in sorted order
         for i in xrange(len(self._heap)-1, 0, -1):
             # swap trick from stack overflow
             #  - supposedly works because Python first evaluates all of the right side
@@ -152,3 +162,5 @@ class MinHeap(Heap):
             self._heap[0], self._heap[i] = self._heap[i], self._heap[0]
             self._heapsize -= 1
             self.min_heapify(0)
+        # at this point there's only one item left in the heap, at the root, which must 
+        # be the largest element and located at heap[0] -- hence heap[0..] is sorted
