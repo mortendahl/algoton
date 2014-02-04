@@ -250,9 +250,10 @@ def quick_sort(quick_sort_partition, numbers, p=0, r=None):
     if r is None: r = len(numbers)-1
     if p < r:
         q = quick_sort_partition(numbers, p, r)
+        print p, q, r, "  --  ", q-p, r-q
         quick_sort(quick_sort_partition, numbers, p, q-1)
         quick_sort(quick_sort_partition, numbers, q+1, r)
-
+        
 #
 #  randomised version
 #
@@ -486,17 +487,17 @@ if __name__ == '__main__':
                 random.sample(xrange(100000),  5000),
                 random.sample(xrange(100000), 10000)   ]
 
-    algos = [   "bubble_sort",
+    algos = [   #"quick_sort_lomuto",
+                "quick_sort_lomuto_iterative",
+                "bubble_sort",
                 "bubble_sort_optimised",
                 "insertion_sort",
                 "heap_sort",
                 "merge_sort",
-                #"quick_sort_lomuto",
                 "quick_sort_lomuto_randomised",
-                "quick_sort_lomuto_iterative",
                 "counting_sort",
-                "bucket_sort_insertion_sort",
                 "bucket_sort_merge_sort",
+                "bucket_sort_insertion_sort",
                 "native_sort"      ]
 
     for testlist in tests:
@@ -523,7 +524,9 @@ if __name__ == '__main__':
 
     algos = [   "heap_sort",
                 "merge_sort",
-                "quick_sort",
+                "quick_sort_lomuto_randomised",
+                "counting_sort",
+                "bucket_sort_insertion_sort",
                 "native_sort"      ]
 
     for testlist in tests:
