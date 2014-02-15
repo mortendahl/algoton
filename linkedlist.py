@@ -67,7 +67,7 @@ class SinglyLinkedList:
         # traverse chain looking for key
         node = self.sentinal[2]
         while node is not self.sentinal:
-            if node[0] is key: return node
+            if node[0] is key: return node[1]
             node = node[2]
         return None
         
