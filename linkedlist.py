@@ -6,7 +6,13 @@
 
 
 
-
+#
+#  Singly linked-list using Python lists as nodes: [data, next]
+#
+#
+#  notes:
+#   - uses special 'sentinal' node to indicate 'end of list'; sentinal[1] is head of list
+#
 
 class SinglyLinkedList:
 
@@ -15,40 +21,47 @@ class SinglyLinkedList:
         sentinal = [None, None]   # [data, next]
         sentinal[1] = sentinal
         self.sentinal = sentinal
-        # add any items given (mostly to comply with 'construct-as-printed' pattern)
+        # add any items given (to comply with 'construct-as-printed' pattern)
         self.extend(lst)
 
     def insert_head(self, node):
-        self.sentinal[1] = node
         node[1] = self.sentinal[1]
+        self.sentinal[1] = node
 
     def insert_tail(self, node):
-        # traverse list to find tail
-        tail_node = sentinal = self.sentinal
-        while tail_node[1] is not sentinal:
+        # traverse list to find tail; tail is the node with next pointing to sentinal
+        tail_node = self.sentinal
+        while tail_node[1] is not self.sentinal:
             tail_node = tail_node[1]
         # append at tail
         tail_node[1] = node
-        node[1] = sentinal
+        node[1] = self.sentinal
 
+    # assume that 'node' is not sentinal
     def remove(self, node):
-        # traverse list to find previous node
-        prev_node = sentinal = self.sentinal
-        while prev_node[1] is not sentinal:
-            prev_node = prev_node[1]
-        prev_node[1] = node[1]
+        # traverse list to find 'prev_node' pointing to 'node'
+        prev_node = self.sentinal
+        while prev_node[1] is not self.sentinal:
+            if prev_node[1] is node:
+                # remove and return
+                prev_node[1] = node[1]
+                return
+            else:
+                # move to next
+                prev_node = prev_node[1]
 
     def head(self):
-        sentinal = self.sentinal
-        node = sentinal[1]
-        return None if node is sentinal else node
+        node = self.sentinal[1]
+        # check if empty list
+        return node if node is not self.sentinal else None
 
     def tail(self):
         # traverse list to find tail
-        tail_node = sentinal = self.sentinal
-        while tail_node[1] is not sentinal:
+        tail_node = self.sentinal
+        while tail_node[1] is not self.sentinal:
             tail_node = tail_node[1]
-        return None if tail_node is sentinal else tail_node
+        # check if empty list
+        return tail_node if tail_node is not self.sentinal else None
 
     def append_head(self, data):
         self.sentinal[1] = [data, self.sentinal[1]]
@@ -64,32 +77,27 @@ class SinglyLinkedList:
 
     def search(self, data):
         # traverse list
-        sentinal = self.sentinal
-        node = sentinal[1]
-        while node is not sentinal:
+        node = self.sentinal[1]
+        while node is not self.sentinal:
             if node[0] == data: return node
             node = node[1]
         return None
 
     def __str__(self):
         str = "SinglyLinkedList(["
-        sentinal = self.sentinal
-        node = sentinal[1]
-        if node is not sentinal:
+        node = self.sentinal[1]
+        if node is not self.sentinal:
             str += "{0}".format(node[0])
             node = node[1]
-        while node is not sentinal:
+        while node is not self.sentinal:
             str += ", {0}".format(node[0])
             node = node[1]
         return str + "])"
 
     def printlink(self):
-        sentinal = self.sentinal
-        node = sentinal[1]
-        while node is not sentinal:
-            print "{0} {1} {2} ".format("<-" if node[1] is not sentinal else "  ", 
-                                        node[0],
-                                        "->" if node[1] is not sentinal else "  ")
+        node = self.sentinal[1]
+        while node is not self.sentinal:
+            print "{0} {1} ".format(node[0], "->" if node[1] is not self.sentinal else "  ")
             node = node[1]
 
 
@@ -106,6 +114,20 @@ class SinglyLinkedList:
 
 
 
+class Stack:
+
+    def __init__(self, lst=[]):
+        self._linkedlist = SinglyLinkedList()
+        
+    def push(self, data):
+        self._linkedlist.append_head(data)
+        
+    def pop(self):
+        head = self._linkedlist.head()
+        if head is None: return None
+        self._linkedlist.remove(head)
+        return head[0]
+        
 
 
 
@@ -215,3 +237,26 @@ class DoublyLinkedList:
         while node is not sentinal:
             print "{0} <- {1} -> {2} ".format(node.prev.data, node.data, node.next.data)
             node = node.next
+            
+            
+            
+
+
+#
+# note: 
+#  - we could use a SinglyLinkedList as well if only it also kept an explicit pointer to the tail node 
+#    (pushing at tail, popping at head)
+#
+class Queue:
+
+    def __init__(self, lst=[]):
+        self._linkedlist = DoublyLinkedList()
+
+    def push(self, data):
+        self._linkedlist.append_tail(data)
+
+    def pop(self):
+        head = self._linkedlist.head()
+        if head is None: return None
+        self._linkedlist.remove(head)
+        return head.data
