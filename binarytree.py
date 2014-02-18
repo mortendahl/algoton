@@ -6,7 +6,7 @@
 
 
 
-class BinarySearchTreeNode:
+class TreeNode:
     
     __slots__ = ['key', 'data', 'left', 'right', 'parent']
 
@@ -18,26 +18,35 @@ class BinarySearchTreeNode:
         self.right = right
 
 
+def print_tree(node, indent="", step="  "):
+    if node is None: return
+    print "{0}{1} ({2})".format(indent, node.key, node.data)
+    print_tree(node.left, indent+step)
+    print_tree(node.right, indent+step)
 
 
 
 
-class BinarySearchTree:
+
+
+
+
+
+
+
+
+
+
+class BinaryTree:
 
     def __init__(self, root=None):
         self.root = root
-        
-    def print_tree(self, node=None, indent="", step="  "):
-        if node is None: node = self.root
-        print "{0}{1}".format(indent, node.key)
-        if node.left is not None: self.print_tree(node.left, indent+step)
-        if node.right is not None: self.print_tree(node.right, indent+step)
 
     def preorder_walk(self, function, node=None):
         if node is None: node = self.root
         function(node.key)
-        if node.left is not None: self.inorder_walk(function, node.left)
-        if node.right is not None: self.inorder_walk(function, node.right)
+        if node.left is not None: self.preorder_walk(function, node.left)
+        if node.right is not None: self.preorder_walk(function, node.right)
 
     def inorder_walk(self, function, node=None):
         if node is None: node = self.root
@@ -47,9 +56,27 @@ class BinarySearchTree:
 
     def postorder_walk(self, function, node=None):
         if node is None: node = self.root
-        if node.left is not None: self.inorder_walk(function, node.left)      
-        if node.right is not None: self.inorder_walk(function, node.right)
+        if node.left is not None: self.postorder_walk(function, node.left)      
+        if node.right is not None: self.postorder_walk(function, node.right)
         function(node.key)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class BinarySearchTree(BinaryTree):
+
+    def __init__(self, root=None):
+        BinaryTree.__init__(self, root)    
 
     def search(self, key, node=None):
         if node is None: node = self.root
@@ -186,14 +213,14 @@ def binary_search_tree_from_sorted_list(lst, lower=0, upper=None):
         return None
     elif lower == upper:
         # array of size one
-        return BinarySearchTreeNode(*lst[lower])
+        return TreeNode(*lst[lower])
     else: # lower < upper
         middle = (lower + upper) // 2
         left = binary_search_tree_from_sorted_list(lst, lower, middle-1)
         right = binary_search_tree_from_sorted_list(lst, middle+1, upper)
         key = lst[middle][0]
         data = lst[middle][1]
-        node = BinarySearchTreeNode(key, data, left, right)
+        node = TreeNode(key, data, left, right)
         if left is not None: left.parent = node
         if right is not None: right.parent = node
         return node
@@ -210,6 +237,89 @@ def sorted_list_from_binary_search_tree(tree):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+class Radix(BinaryTree):
+    
+    def __init__(self, root=None):
+        self.root = root
+        
+    def search(self, binstr):
+        node = self.root
+        for b in binstr:
+            if b == '0':
+                # left
+                if node.left is None: return False
+                node = node.left
+            else:  # assume b == 1
+                # right
+                if node.right is None: return False
+                node = node.right
+        return node.data if node is not None else False
+
+    def insert(self, binstr):
+        if self.root is None: self.root = TreeNode('e', False)
+        node = self.root
+        for b in binstr:
+            if b == '0':
+                # left
+                if node.left is None: node.left = TreeNode(b, False, parent=node)
+                node = node.left
+            else:  # assume b == 1
+                # right
+                if node.right is None: node.right = TreeNode(b, False, parent=node)
+                node = node.right
+        node.data = True
+
+    # assume that binstr is a string over {'0', '1'}
+    def delete(self, binstr):
+        if self.root is None: return
+        node = self.root
+        for b in binstr:
+            if b == '0':
+                # left
+                if node.left is None: return
+                node = node.left
+            else:  # assume b == 1
+                # right
+                if node.right is None: return
+                node = node.right
+        if node.left is None and node.right is None:
+            # remove node if no children
+            if node.parent is not None:
+                if node is node.parent.left:
+                    node.parent.left = None
+                else:
+                    node.parent.right = None
+        else:
+            # keep but update
+            node.data = False
+
+    def sorted_strings(self, node=None, path=""):        
+        lst = []
+        if node is None: node = self.root
+        if node.data == True: lst.append(path)
+        if node.left is not None: lst.extend(self.sorted_strings(node.left, path+"0"))
+        if node.right is not None: lst.extend(self.sorted_strings(node.right, path+"1"))
+        return lst
+
+
+#r = Radix()
+#r.insert("0")
+#r.insert("011")
+#r.insert("10")
+#r.insert("100")
+#r.insert("1011")
+#print r.sorted_strings()
 
 
 
