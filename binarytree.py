@@ -6,33 +6,18 @@
 
 
 
-class TreeNode:
+class BinaryTreeNode:
     
-    __slots__ = ['key', 'data', 'left', 'right', 'parent']
+    # inheritance doesn't seem to work properly when using this (additional fields in sub not available)
+    #__slots__ = ['key', 'data', 'left', 'right', 'parent']
 
-    def __init__(self, key, data=None, left=None, right=None, parent=None): 
-        self.key = key
-        self.data = data
+    def __init__(self, left=None, right=None, parent=None): 
         self.parent = parent
         self.left = left
         self.right = right
-
-
-def print_tree(node, indent="", step="  "):
-    if node is None: return
-    print "{0}{1} ({2})".format(indent, node.key, node.data)
-    print_tree(node.left, indent+step)
-    print_tree(node.right, indent+step)
-
-
-
-
-
-
-
-
-
-
+        
+    def __str__(self):
+        return "BinaryTreeNode()"
 
 
 
@@ -44,21 +29,27 @@ class BinaryTree:
 
     def preorder_walk(self, function, node=None):
         if node is None: node = self.root
-        function(node.key)
+        function(node)
         if node.left is not None: self.preorder_walk(function, node.left)
         if node.right is not None: self.preorder_walk(function, node.right)
 
     def inorder_walk(self, function, node=None):
         if node is None: node = self.root
         if node.left is not None: self.inorder_walk(function, node.left)
-        function(node.key)
+        function(node)
         if node.right is not None: self.inorder_walk(function, node.right)
 
     def postorder_walk(self, function, node=None):
         if node is None: node = self.root
         if node.left is not None: self.postorder_walk(function, node.left)      
         if node.right is not None: self.postorder_walk(function, node.right)
-        function(node.key)
+        function(node)
+
+    def print_tree(self, node=None, indent="", step="  "):
+        if node is None: node = self.root
+        print "{0}{1}".format(indent, node)
+        if node.left is not None: self.print_tree(node.left, indent+step)
+        if node.right is not None: self.print_tree(node.right, indent+step)
 
 
 
@@ -69,6 +60,29 @@ class BinaryTree:
 
 
 
+
+
+
+
+class BinarySearchTreeNode(BinaryTreeNode):
+    
+    def __init__(self, key, left=None, right=None, parent=None): 
+        BinaryTreeNode.__init__(self, left, right, parent)
+        self.key = key
+        
+    def __str__(self):
+        return "{0}".format(self.key)
+
+
+
+class BinarySearchTreeNodeWithData(BinarySearchTreeNode):
+    
+    def __init__(self, key, data=None, left=None, right=None, parent=None): 
+        BinarySearchTreeNode.__init__(self, key, left, right, parent)
+        self.data = data
+        
+    def __str__(self):
+        return "{0} ({1})".format(self.key, self.data)
 
 
 
@@ -213,27 +227,31 @@ def binary_search_tree_from_sorted_list(lst, lower=0, upper=None):
         return None
     elif lower == upper:
         # array of size one
-        return TreeNode(*lst[lower])
+        return BinarySearchTreeNode(lst[lower])
+        #return BinarySearchTreeNodeWithData(lst[lower], None)
     else: # lower < upper
         middle = (lower + upper) // 2
         left = binary_search_tree_from_sorted_list(lst, lower, middle-1)
         right = binary_search_tree_from_sorted_list(lst, middle+1, upper)
-        key = lst[middle][0]
-        data = lst[middle][1]
-        node = TreeNode(key, data, left, right)
+        key = lst[middle]
+        node = BinarySearchTreeNode(key, left, right)
+        #node = BinarySearchTreeNodeWithData(key, None, left, right)
         if left is not None: left.parent = node
         if right is not None: right.parent = node
         return node
 
 def sorted_list_from_binary_search_tree(tree):
     lst = []
-    tree.inorder_walk(lambda x: lst.append(x))
+    tree.inorder_walk(lambda node: lst.append(node.key))
     return lst
 
 
-#nodes = [1,2,5,6,7,8]
-#tree = BinarySearchTree(binary_search_tree_from_sorted_list(map(lambda i: (i,None), nodes)))
-#print tree.closest_match(3).key
+nodes = [1,2,5,6,7,8]
+tree = BinarySearchTree(binary_search_tree_from_sorted_list(nodes))
+tree.print_tree()
+print sorted_list_from_binary_search_tree(tree)
+print tree.search(3)
+print tree.closest_match(3).key
 
 
 
@@ -247,6 +265,25 @@ def sorted_list_from_binary_search_tree(tree):
 
 
 
+
+
+
+class RadixTreeNode(BinaryTreeNode):
+    
+    def __init__(self, symbol, stored=False, left=None, right=None, parent=None): 
+        BinaryTreeNode.__init__(self, left, right, parent)
+        self.symbol = symbol
+        self.stored = stored
+        
+    def __str__(self):
+        return "{0} ({1})".format(self.symbol, self.stored)
+        
+        
+        
+        
+        
+        
+        
 
 class Radix(BinaryTree):
     
@@ -264,21 +301,21 @@ class Radix(BinaryTree):
                 # right
                 if node.right is None: return False
                 node = node.right
-        return node.data if node is not None else False
+        return node.stored if node is not None else False
 
     def insert(self, binstr):
-        if self.root is None: self.root = TreeNode('e', False)
+        if self.root is None: self.root = RadixTreeNode(symbol='e', stored=False)
         node = self.root
         for b in binstr:
             if b == '0':
                 # left
-                if node.left is None: node.left = TreeNode(b, False, parent=node)
+                if node.left is None: node.left = RadixTreeNode(symbol=b, stored=False, parent=node)
                 node = node.left
             else:  # assume b == 1
                 # right
-                if node.right is None: node.right = TreeNode(b, False, parent=node)
+                if node.right is None: node.right = RadixTreeNode(symbol=b, stored=False, parent=node)
                 node = node.right
-        node.data = True
+        node.stored = True
 
     # assume that binstr is a string over {'0', '1'}
     def delete(self, binstr):
@@ -302,26 +339,140 @@ class Radix(BinaryTree):
                     node.parent.right = None
         else:
             # keep but update
-            node.data = False
+            node.stored = False
 
     def sorted_strings(self, node=None, path=""):        
         lst = []
         if node is None: node = self.root
-        if node.data == True: lst.append(path)
+        if node.stored: lst.append(path)
         if node.left is not None: lst.extend(self.sorted_strings(node.left, path+"0"))
         if node.right is not None: lst.extend(self.sorted_strings(node.right, path+"1"))
         return lst
 
 
-#r = Radix()
-#r.insert("0")
-#r.insert("011")
-#r.insert("10")
-#r.insert("100")
-#r.insert("1011")
-#print r.sorted_strings()
+r = Radix()
+r.insert("0")
+r.insert("011")
+r.insert("10")
+r.insert("100")
+r.insert("1011")
+r.print_tree()
+print r.sorted_strings()
 
 
 
 
 
+
+
+
+
+
+
+
+
+class OrderStatisticTreeNode(BinarySearchTreeNode):
+    
+    def __init__(self, key, size=1, left=None, right=None, parent=None): 
+        BinarySearchTreeNode.__init__(self, key, left, right, parent)
+        self.size = size
+        
+    def __str__(self):
+        return "{0} ({1})".format(self.key, self.size)
+        
+        
+class OrderStatisticTree(BinarySearchTree):
+        
+    def __init__(self, root=None):
+        BinarySearchTree.__init__(self, root)
+        
+    def select(self, index, node=None):
+        if node is None: node = self.root
+        if node is None: return None  # empty tree
+        current_index = node.left.size if node.left is not None else 0
+        if index == current_index:
+            return node
+        elif index < current_index:
+            if node.left is not None: return self.select(index, node.left)
+            else: return None
+        else:
+            nodes_before = current_index + 1
+            if node.right is not None: return self.select(index - nodes_before, node.right)
+            else: return None
+            
+    def rank(self, node):
+        rank = node.left.size if node.left is not None else 0
+        #while node is not self.root:
+        while node.parent is not None:
+            if node is node.parent.right:
+                rank += node.parent.left.size + 1 if node.parent.left is not None else 1
+            node = node.parent
+        return rank
+            
+    def insert(self, node):
+        parent = None
+        candidate = self.root  # records candidate location for new node
+        # traverse until we find an empty location
+        while candidate is not None:
+            if node.key == candidate.key:
+                # add one to size
+                candidate.size += 1
+                # move down right
+                #  - we could do other things here (move left, store in linked list, ...)
+                parent, candidate = candidate, candidate.right
+            elif node.key < candidate.key:
+                # add one to size
+                candidate.size += 1
+                # move down left
+                parent, candidate = candidate, candidate.left
+            else:
+                # add one to size
+                candidate.size += 1
+                # move down right
+                parent, candidate = candidate, candidate.right
+        node.parent = parent
+        if parent is None:
+            self.root = node
+        else:
+            if node.key < parent.key: 
+                parent.left = node
+            else:
+                parent.right = node
+                
+    def delete(self, node):
+        # we cannot use the inherited delete as it doesn't maintain the size field
+        raise NotImplementedError
+        
+        
+#root = OrderStatisticTreeNode(2, 5)
+#left = OrderStatisticTreeNode(0, 2)
+#leftright = OrderStatisticTreeNode(1, 1)
+#right = OrderStatisticTreeNode(4, 3)
+#rightleft = OrderStatisticTreeNode(3, 1)
+#rightright = OrderStatisticTreeNode(5, 1)
+#root.left, left.parent = left, root
+#root.right, right.parent = right, root
+#left.right, leftright.parent = leftright, left
+#right.left, rightleft.parent = rightleft, right
+#right.right, rightright.parent = rightright, right
+#os = OrderStatisticTree(root)
+#nodes = [left, leftright, root, rightleft, right, rightright]
+#for i,node in enumerate(nodes):
+#    assert os.select(i) is nodes[i]
+#    assert os.rank(node) is i
+#    #assert os.select(os.rank(node)) is node
+        
+        
+#os = OrderStatisticTree()
+#os.insert(OrderStatisticTreeNode(1))
+#os.insert(OrderStatisticTreeNode(0))
+#os.insert(OrderStatisticTreeNode(2))
+#os.insert(OrderStatisticTreeNode(3))
+#os.insert(OrderStatisticTreeNode(4))
+#os.print_tree()
+#print os.select(0) is os.search(0)
+#print os.select(1) is os.search(1)
+#print os.select(2) is os.search(2)
+#print os.select(3) is os.search(3)
+#print os.select(4) is os.search(4)
+#print os.select(5) is None
