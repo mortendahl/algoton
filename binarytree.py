@@ -21,6 +21,8 @@ class BinaryTreeNode:
         self.parent = parent
         self.left = left
         self.right = right
+        if left is not None: left.parent = self
+        if right is not None: right.parent = self
         
     def __str__(self):
         return "BinaryTreeNode()"
@@ -565,7 +567,10 @@ assert r.sorted_strings() == ["0", "011", "10", "100", "1011"]
 #  Augmented binary search tree giving quick order statistics
 #
 #
-#  - Cormen et al. chapter 14.1 (although not for red-black tree)
+#  - Cormen et al. section 14.1 
+#
+#  - note that basic binary search trees are used here (and not red-black trees), 
+#    meaning that there are no guarantees that height h of tree remains O(lg(n))
 #
 
 
@@ -659,17 +664,12 @@ class OrderStatisticTree(BinarySearchTree):
 #  experiments
 #
 
-root = OrderStatisticTreeNode(2, 5)
-left = OrderStatisticTreeNode(0, 2)
 leftright = OrderStatisticTreeNode(1, 1)
-right = OrderStatisticTreeNode(4, 3)
+left = OrderStatisticTreeNode(0, 2, None, leftright)
 rightleft = OrderStatisticTreeNode(3, 1)
 rightright = OrderStatisticTreeNode(5, 1)
-root.left, left.parent = left, root
-root.right, right.parent = right, root
-left.right, leftright.parent = leftright, left
-right.left, rightleft.parent = rightleft, right
-right.right, rightright.parent = rightright, right
+right = OrderStatisticTreeNode(4, 3, rightleft, rightright)
+root = OrderStatisticTreeNode(2, 5, left, right)
 os = OrderStatisticTree(root)
 nodes = [left, leftright, root, rightleft, right, rightright]
 for i,node in enumerate(nodes):
@@ -690,4 +690,150 @@ assert os.select(2) is os.search(2)
 assert os.select(3) is os.search(3)
 assert os.select(4) is os.search(4)
 assert os.select(5) is None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##########################
+#
+#  Augmented binary search tree for interval overlapping
+#
+#
+#  - Cormen et al. section 14.3
+#
+#  - note that basic binary search trees are used here (and not red-black trees), 
+#    meaning that there are no guarantees that height h of tree remains O(lg(n))
+#
+
+
+#
+#  binary search tree node augmented with sub-tree max end
+#
+
+class IntervalTreeNode(BinarySearchTreeNode):
+
+    # note: start = key
+    def __init__(self, start, end, max=None, left=None, right=None, parent=None): 
+        BinarySearchTreeNode.__init__(self, start, left, right, parent)
+        self.start = start
+        self.end = end
+        self.max = end if max is None else max
+
+    def __str__(self):
+        return "{0} ([{1}, {2}], {3})".format(self.key, self.start, self.end, self.max)
+
+
+#
+#  updates binary search tree operations to also maintain stored sub-tree max end
+#
+
+class IntervalTree(BinarySearchTree):
+    
+    def __init__(self, root=None):
+        BinarySearchTree.__init__(self, root)
+        
+    def overlap(self, start, end, node=None):
+        if node is None: node = self.root
+        while node is not None:
+            if (start <= node.start and end > node.start) or (node.start <= start and node.end > start):
+                # overlap with current node
+                return node
+            elif node.left is not None and start <= node.left.max:
+                # look for overlap in left tree; this is okay since: 
+                #  - if we find one then all is good; and if we don't, then there wouldn't be any in node.right either
+                #  - latter follows since if none are overlapping in left, then we must have end < max_node.start
+                #    - otherwise start <= max_node.end (from while-condition) and max_node.start <= end (negation) would imply an overlap
+                #  - since the tree is a binary search tree, for all nodes in node.right we must have max_node.start < node.start
+                node = node.left
+            else:
+                # look for overlap in right tree
+                node = node.right
+        return node
+        
+    # add interval to the set, maintaining the stored sub-tree max end, O(h)
+    # assume all keys (starting time) are unique
+    def insert(self, interval):
+        parent = None
+        candidate = self.root  # records candidate location for new node
+        # traverse until we find an empty location
+        while candidate is not None:
+            if interval.key == candidate.key:
+                raise ValueError("New interval does not have unique starting time (key)")
+            elif interval.key < candidate.key:
+                # move down left
+                candidate.max = max(candidate.max, interval.end)
+                parent, candidate = candidate, candidate.left
+            else:
+                # move down right
+                candidate.max = max(candidate.max, interval.end)
+                parent, candidate = candidate, candidate.right
+        interval.parent = parent
+        if parent is None:
+            self.root = interval
+        else:
+            if interval.key < parent.key: 
+                parent.left = interval
+            else:
+                parent.right = interval
+                
+    # remove node from the set, maintaining the stored sub-tree max end
+    def delete(self, interval):
+        raise NotImplementedError
+        
+
+#node0 = IntervalTreeNode(0, 3, 3)
+#node6 = IntervalTreeNode(6, 10, 10)
+#node5 = IntervalTreeNode(5, 8, 10, node0, node6)
+#node15 = IntervalTreeNode(15, 23, 23)
+#node8 = IntervalTreeNode(8, 9, 23, node5, node15)
+#node19 = IntervalTreeNode(19, 20, 20)
+#node17 = IntervalTreeNode(17, 19, 20, None, node19)
+#node26 = IntervalTreeNode(26, 26, 26)
+#node25 = IntervalTreeNode(25, 30, 30, node17, node26)
+#node16 = IntervalTreeNode(16, 21, 30, node8, node25)
+#i = IntervalTree(node16)
+#i.print_tree()
+#assert i.overlap(17,18) is node16
+#assert i.overlap(22, 23) is node15
+#i.insert(IntervalTreeNode(1, 50))
+#i.print_tree()        
+        
+
+i = IntervalTree()
+i.insert(IntervalTreeNode(16, 21))
+i.insert(IntervalTreeNode(8, 9))
+i.insert(IntervalTreeNode(15, 23))
+i.insert(IntervalTreeNode(5, 8))
+i.insert(IntervalTreeNode(0, 3))
+i.insert(IntervalTreeNode(6, 10))
+i.insert(IntervalTreeNode(25, 30))
+i.insert(IntervalTreeNode(17, 19))
+i.insert(IntervalTreeNode(26, 26))
+i.insert(IntervalTreeNode(19, 20))
+assert i.overlap(17,18) is i.search(16)
+assert i.overlap(22, 23) is i.search(15)
+i.insert(IntervalTreeNode(1, 50))
+assert i.overlap(40, 45) is i.search(1)
+
+
+
+
+
+
+
+
+
 
