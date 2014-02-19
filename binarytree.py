@@ -22,35 +22,121 @@ class BinaryTreeNode:
 
 
 
+
+
+
+
+
+class BinaryTreeVisitor:
+
+    def __init__(self):
+        pass
+
+    def going_left(self):
+        pass
+
+    def going_right(self):
+        pass
+
+    def going_up(self):
+        pass
+
+    def visit(self, node):
+        pass
+
+
+
+
+
+class PrintVisitor(BinaryTreeVisitor):
+
+    def __init__(self, indent_step="  "): 
+        BinaryTreeVisitor.__init__(self)
+        self.indent_step = indent_step
+        self.level = 0
+
+    def going_left(self):
+        self.level += 1
+
+    def going_right(self):
+        self.level += 1
+
+    def going_up(self):
+        self.level -= 1
+
+    def visit(self, node):
+        print "{0}{1}".format(self.indent_step*self.level, node)
+
+
+
+
+
+class CollectVisitor(BinaryTreeVisitor):
+
+    def __init__(self):
+        BinaryTreeVisitor.__init__(self)
+        self.lst = []
+
+    def visit(self, node):
+        self.lst.append(node)
+
+
+
+
+
+
+
+
+
 class BinaryTree:
 
     def __init__(self, root=None):
         self.root = root
 
-    def preorder_walk(self, function, node=None):
+    def preorder_walk(self, visitor, node=None):
         if node is None: node = self.root
-        function(node)
-        if node.left is not None: self.preorder_walk(function, node.left)
-        if node.right is not None: self.preorder_walk(function, node.right)
+        visitor.visit(node)
+        if node.left is not None:
+            visitor.going_left()
+            self.preorder_walk(visitor, node.left)
+            visitor.going_up()
+        if node.right is not None: 
+            visitor.going_right()
+            self.preorder_walk(visitor, node.right)
+            visitor.going_up()
 
-    def inorder_walk(self, function, node=None):
+    def inorder_walk(self, visitor, node=None):
         if node is None: node = self.root
-        if node.left is not None: self.inorder_walk(function, node.left)
-        function(node)
-        if node.right is not None: self.inorder_walk(function, node.right)
+        if node.left is not None: 
+            visitor.going_left()
+            self.inorder_walk(visitor, node.left)
+            visitor.going_up()
+        visitor.visit(node)
+        if node.right is not None: 
+            visitor.going_right()
+            self.inorder_walk(visitor, node.right)
+            visitor.going_up()
 
-    def postorder_walk(self, function, node=None):
+    def postorder_walk(self, visitor, node=None):
         if node is None: node = self.root
-        if node.left is not None: self.postorder_walk(function, node.left)      
-        if node.right is not None: self.postorder_walk(function, node.right)
-        function(node)
+        if node.left is not None: 
+            visitor.going_left()
+            self.postorder_walk(visitor, node.left)
+            visitor.going_up()
+        if node.right is not None: 
+            visitor.going_right()
+            self.postorder_walk(visitor, node.right)
+            visitor.going_up()
+        visitor.visit(node)
 
     def print_tree(self, node=None, indent="", step="  "):
-        if node is None: node = self.root
-        print "{0}{1}".format(indent, node)
-        if node.left is not None: self.print_tree(node.left, indent+step)
-        if node.right is not None: self.print_tree(node.right, indent+step)
-
+        v = PrintVisitor()
+        self.preorder_walk(v)
+        
+    def nodes(self):
+        v = CollectVisitor()
+        self.inorder_walk(v)
+        return v.lst
 
 
 
@@ -240,16 +326,21 @@ def binary_search_tree_from_sorted_list(lst, lower=0, upper=None):
         if right is not None: right.parent = node
         return node
 
+
+        
+
 def sorted_list_from_binary_search_tree(tree):
-    lst = []
-    tree.inorder_walk(lambda node: lst.append(node.key))
-    return lst
+    #lst = []
+    #tree.inorder_walk(lambda node: lst.append(node.key))
+    #return lst
+    return tree.nodes()
 
 
-nodes = [1,2,5,6,7,8]
+
+nodes = [1,2,5,6,7,8]  # must be sorted
 tree = BinarySearchTree(binary_search_tree_from_sorted_list(nodes))
 tree.print_tree()
-print sorted_list_from_binary_search_tree(tree)
+print map(lambda node: node.key, sorted_list_from_binary_search_tree(tree))
 print tree.search(3)
 print tree.closest_match(3).key
 
@@ -282,7 +373,31 @@ class RadixTreeNode(BinaryTreeNode):
         
         
         
+
+
+
+class RadixContentVisitor(BinaryTreeVisitor):
+    
+    def __init__(self):
+        BinaryTreeVisitor.__init__(self)
+        self.lst = []
+        self.path = ""
+    
+    def going_left(self):
+        self.path += "0"
         
+    def going_right(self):
+        self.path += "1"
+        
+    def going_up(self):
+        self.path = self.path[:-1]
+    
+    def visit(self, node):
+        if node.stored: self.lst.append(self.path)
+
+
+
+
         
 
 class Radix(BinaryTree):
@@ -342,12 +457,15 @@ class Radix(BinaryTree):
             node.stored = False
 
     def sorted_strings(self, node=None, path=""):        
-        lst = []
-        if node is None: node = self.root
-        if node.stored: lst.append(path)
-        if node.left is not None: lst.extend(self.sorted_strings(node.left, path+"0"))
-        if node.right is not None: lst.extend(self.sorted_strings(node.right, path+"1"))
-        return lst
+        #lst = []
+        #if node is None: node = self.root
+        #if node.stored: lst.append(path)
+        #if node.left is not None: lst.extend(self.sorted_strings(node.left, path+"0"))
+        #if node.right is not None: lst.extend(self.sorted_strings(node.right, path+"1"))
+        #return lst
+        v = RadixContentVisitor()
+        self.preorder_walk(v)
+        return v.lst
 
 
 r = Radix()
@@ -379,6 +497,9 @@ class OrderStatisticTreeNode(BinarySearchTreeNode):
         
     def __str__(self):
         return "{0} ({1})".format(self.key, self.size)
+        
+        
+        
         
         
 class OrderStatisticTree(BinarySearchTree):
