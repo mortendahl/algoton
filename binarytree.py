@@ -76,7 +76,7 @@ class BinaryTree:
 class BinarySearchTree(BinaryTree):
 
     def __init__(self, root=None):
-        BinaryTree.__init__(self, root)    
+        BinaryTree.__init__(self, root)
 
     def search(self, key, node=None):
         if node is None: node = self.root
@@ -251,7 +251,7 @@ def sorted_list_from_binary_search_tree(tree):
 class Radix(BinaryTree):
     
     def __init__(self, root=None):
-        self.root = root
+        BinaryTree.__init__(self, root)
         
     def search(self, binstr):
         node = self.root
