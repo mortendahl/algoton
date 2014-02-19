@@ -2,9 +2,15 @@
 
 
 
+##########################
+#
+#  Basic binary trees
+#
 
 
-
+#
+#  fundamental node
+#
 
 class BinaryTreeNode:
     
@@ -20,12 +26,9 @@ class BinaryTreeNode:
         return "BinaryTreeNode()"
 
 
-
-
-
-
-
-
+#
+#  abstract visitor
+#
 
 class BinaryTreeVisitor:
 
@@ -45,8 +48,9 @@ class BinaryTreeVisitor:
         pass
 
 
-
-
+#
+#  visitor printing the entire tree
+#
 
 class PrintVisitor(BinaryTreeVisitor):
 
@@ -65,11 +69,13 @@ class PrintVisitor(BinaryTreeVisitor):
         self.level -= 1
 
     def visit(self, node):
-        print "{0}{1}".format(self.indent_step*self.level, node)
+        indent = self.indent_step * self.level
+        print "{0}{1}".format(indent, node)
 
 
-
-
+#
+#  visitor collection all nodes in tree
+#
 
 class CollectVisitor(BinaryTreeVisitor):
 
@@ -81,18 +87,16 @@ class CollectVisitor(BinaryTreeVisitor):
         self.lst.append(node)
 
 
-
-
-
-
-
-
+#
+#  basic operations
+#
 
 class BinaryTree:
 
     def __init__(self, root=None):
         self.root = root
 
+    # visits all nodes, parent before children, O(n)
     def preorder_walk(self, visitor, node=None):
         if node is None: node = self.root
         visitor.visit(node)
@@ -105,6 +109,7 @@ class BinaryTree:
             self.preorder_walk(visitor, node.right)
             visitor.going_up()
 
+    # visits all nodes, left before parent before right, O(n)
     def inorder_walk(self, visitor, node=None):
         if node is None: node = self.root
         if node.left is not None: 
@@ -117,6 +122,7 @@ class BinaryTree:
             self.inorder_walk(visitor, node.right)
             visitor.going_up()
 
+    # visits all nodes, children before parent, O(n)
     def postorder_walk(self, visitor, node=None):
         if node is None: node = self.root
         if node.left is not None: 
@@ -129,10 +135,12 @@ class BinaryTree:
             visitor.going_up()
         visitor.visit(node)
 
-    def print_tree(self, node=None, indent="", step="  "):
+    # print the tree, O(n)
+    def print_tree(self):
         v = PrintVisitor()
         self.preorder_walk(v)
-        
+
+    # collect all nodes in tree, O(n)
     def nodes(self):
         v = CollectVisitor()
         self.inorder_walk(v)
@@ -150,34 +158,57 @@ class BinaryTree:
 
 
 
+
+
+##########################
+#
+#  Binary search trees
+#
+#
+#  - Cormen et al. chapter 12
+#
+#  - satisfies binary search tree property, making search for a key efficient
+#
+
+
+#
+#  fundamental tree node for binary search trees
+#
+
 class BinarySearchTreeNode(BinaryTreeNode):
-    
+
     def __init__(self, key, left=None, right=None, parent=None): 
         BinaryTreeNode.__init__(self, left, right, parent)
         self.key = key
-        
+
     def __str__(self):
         return "{0}".format(self.key)
 
-
+#
+#  .. with extra satallite data
+#
 
 class BinarySearchTreeNodeWithData(BinarySearchTreeNode):
-    
+
     def __init__(self, key, data=None, left=None, right=None, parent=None): 
         BinarySearchTreeNode.__init__(self, key, left, right, parent)
         self.data = data
-        
+
     def __str__(self):
         return "{0} ({1})".format(self.key, self.data)
 
 
-
+#
+#  basic operations for binary search tree
+#
 
 class BinarySearchTree(BinaryTree):
 
+    # assume that any root given is already a binary search tree
     def __init__(self, root=None):
         BinaryTree.__init__(self, root)
 
+    # binary search on key (None if not in tree), O(h)
     def search(self, key, node=None):
         if node is None: node = self.root
         while node is not None:
@@ -189,6 +220,7 @@ class BinarySearchTree(BinaryTree):
                 node = node.right
         return None
 
+    # binary search on key (closest key if not in tree), O(h)
     def closest_match(self, key, node=None):
         if node is None: node = self.root
         closest = node
@@ -203,6 +235,7 @@ class BinarySearchTree(BinaryTree):
                 node = node.right
         return closest
 
+    # mininum key in tree, O(h)
     def minimum(self, node=None):
         if node is None: node = self.root
         if node is None: return None  # empty tree
@@ -210,6 +243,7 @@ class BinarySearchTree(BinaryTree):
             node = node.left
         return node
 
+    # maximum key in tree, O(h)
     def maximum(self, node=None):
         if node is None: node = self.root
         if node is None: return None  # empty tree
@@ -217,6 +251,7 @@ class BinarySearchTree(BinaryTree):
             node = node.right
         return node
 
+    # successor to 'node' wrt key (None if node is highest key), O(h)
     def successor(self, node):
         if node is None: return None
         # if there is any tree on the right, return smallest from there
@@ -233,6 +268,7 @@ class BinarySearchTree(BinaryTree):
                 node, parent = parent, parent.parent
         return None
 
+    # predecessor to 'node' wrt key (None if node is smallest key), O(h)
     def predecessor(self, node):
         if node is None: return None
         # if there is any tree on the left, return largest from there
@@ -249,7 +285,8 @@ class BinarySearchTree(BinaryTree):
                 node, parent = parent, parent.parent
         return None
 
-    # assume that node.left and node.right are both None (inserting a tree may break binary search tree property)
+    # add node to the tree, maintaining the binary search tree property, O(h)
+    # - assume that node.left and node.right are both None (inserting a tree may break binary search tree property)
     def insert(self, node):
         parent = None
         candidate = self.root  # records candidate location for new node
@@ -274,6 +311,7 @@ class BinarySearchTree(BinaryTree):
             else:
                 parent.right = node
 
+    # remove node from the tree, maintaining the binary search tree property, O(h)
     def delete(self, node):
         # determine which node to remove
         if node.left is None or node.right is None:
@@ -306,6 +344,10 @@ class BinarySearchTree(BinaryTree):
                 node_to_splice.parent.right = node_child
 
 
+#
+#  build binary search tree from sorted list, O(n)
+#
+
 def binary_search_tree_from_sorted_list(lst, lower=0, upper=None):
     if upper is None: upper = len(lst) - 1
     if lower > upper:
@@ -327,22 +369,23 @@ def binary_search_tree_from_sorted_list(lst, lower=0, upper=None):
         return node
 
 
-        
+#
+#  return sorted list from binary search tree, O(n)
+#
 
 def sorted_list_from_binary_search_tree(tree):
-    #lst = []
-    #tree.inorder_walk(lambda node: lst.append(node.key))
-    #return lst
     return tree.nodes()
 
 
+#
+#  experiments
+#
 
 nodes = [1,2,5,6,7,8]  # must be sorted
 tree = BinarySearchTree(binary_search_tree_from_sorted_list(nodes))
-tree.print_tree()
-print map(lambda node: node.key, sorted_list_from_binary_search_tree(tree))
-print tree.search(3)
-print tree.closest_match(3).key
+assert map(lambda node: node.key, sorted_list_from_binary_search_tree(tree)) == nodes
+assert tree.search(3) == None
+assert tree.closest_match(3).key == 2
 
 
 
@@ -358,23 +401,41 @@ print tree.closest_match(3).key
 
 
 
+##########################
+#
+#  Radix tree
+#
+#
+#  - Cormen et al. problem 12-2, p269
+#
+#  - efficient for
+#     - storage
+#     - searching
+#     - sorting
+#    a set of binary strings
+#
+#  - we assume that the strings are over {'0', '1'}
+#
+
+
+#
+#  fundamental radix node
+#
 
 class RadixTreeNode(BinaryTreeNode):
-    
+
     def __init__(self, symbol, stored=False, left=None, right=None, parent=None): 
         BinaryTreeNode.__init__(self, left, right, parent)
         self.symbol = symbol
         self.stored = stored
-        
+
     def __str__(self):
         return "{0} ({1})".format(self.symbol, self.stored)
-        
-        
-        
-        
-        
 
 
+#
+#  visitor for collecting the set of strings stored in the radix
+#
 
 class RadixContentVisitor(BinaryTreeVisitor):
     
@@ -396,15 +457,16 @@ class RadixContentVisitor(BinaryTreeVisitor):
         if node.stored: self.lst.append(self.path)
 
 
-
-
-        
+#
+#  radix tree operations
+#        
 
 class Radix(BinaryTree):
-    
+
     def __init__(self, root=None):
         BinaryTree.__init__(self, root)
-        
+
+    # test if binstr is in the set, O(len(binstr))
     def search(self, binstr):
         node = self.root
         for b in binstr:
@@ -418,6 +480,7 @@ class Radix(BinaryTree):
                 node = node.right
         return node.stored if node is not None else False
 
+    # add binstr to the set, O(len(binstr))
     def insert(self, binstr):
         if self.root is None: self.root = RadixTreeNode(symbol='e', stored=False)
         node = self.root
@@ -432,7 +495,7 @@ class Radix(BinaryTree):
                 node = node.right
         node.stored = True
 
-    # assume that binstr is a string over {'0', '1'}
+    # remove binstr from the set, O(len(binstr))
     def delete(self, binstr):
         if self.root is None: return
         node = self.root
@@ -456,7 +519,8 @@ class Radix(BinaryTree):
             # keep but update
             node.stored = False
 
-    def sorted_strings(self, node=None, path=""):        
+    # all strings in the set, sorted lexicographically, O(sum(len(binstr)))
+    def sorted_strings(self, node=None, path=""):
         #lst = []
         #if node is None: node = self.root
         #if node.stored: lst.append(path)
@@ -468,14 +532,17 @@ class Radix(BinaryTree):
         return v.lst
 
 
+#
+# experiments
+#
+
 r = Radix()
 r.insert("0")
-r.insert("011")
 r.insert("10")
+r.insert("011")
 r.insert("100")
 r.insert("1011")
-r.print_tree()
-print r.sorted_strings()
+assert r.sorted_strings() == ["0", "011", "10", "100", "1011"]
 
 
 
@@ -488,25 +555,45 @@ print r.sorted_strings()
 
 
 
+
+
+
+
+
+##########################
+#
+#  Augmented binary search tree giving quick order statistics
+#
+#
+#  - Cormen et al. chapter 14.1 (although not for red-black tree)
+#
+
+
+#
+#  binary search tree node augmented with sub-tree size
+#
 
 class OrderStatisticTreeNode(BinarySearchTreeNode):
-    
+
     def __init__(self, key, size=1, left=None, right=None, parent=None): 
         BinarySearchTreeNode.__init__(self, key, left, right, parent)
         self.size = size
-        
+
     def __str__(self):
         return "{0} ({1})".format(self.key, self.size)
-        
-        
-        
-        
-        
+
+
+#
+#  updates binary search tree operations to also maintain stored sub-tree size
+#
+
 class OrderStatisticTree(BinarySearchTree):
-        
+
     def __init__(self, root=None):
         BinarySearchTree.__init__(self, root)
-        
+
+    # find node that would get 'index' in sorted list of all nodes, O(h)
+    #  - note: select(rank(node)) is node
     def select(self, index, node=None):
         if node is None: node = self.root
         if node is None: return None  # empty tree
@@ -520,7 +607,9 @@ class OrderStatisticTree(BinarySearchTree):
             nodes_before = current_index + 1
             if node.right is not None: return self.select(index - nodes_before, node.right)
             else: return None
-            
+    
+    # find rank (index) of node in sorted list of all nodes, O(h)
+    #  - note: rank(select(index)) is index
     def rank(self, node):
         rank = node.left.size if node.left is not None else 0
         #while node is not self.root:
@@ -529,7 +618,8 @@ class OrderStatisticTree(BinarySearchTree):
                 rank += node.parent.left.size + 1 if node.parent.left is not None else 1
             node = node.parent
         return rank
-            
+    
+    # add node to the set, maintaining the stored sub-tree size, O(h)
     def insert(self, node):
         parent = None
         candidate = self.root  # records candidate location for new node
@@ -559,41 +649,45 @@ class OrderStatisticTree(BinarySearchTree):
                 parent.left = node
             else:
                 parent.right = node
-                
+
+    # remove node from the set, maintaining the stored sub-tree size  
     def delete(self, node):
-        # we cannot use the inherited delete as it doesn't maintain the size field
         raise NotImplementedError
+
+
+#
+#  experiments
+#
+
+root = OrderStatisticTreeNode(2, 5)
+left = OrderStatisticTreeNode(0, 2)
+leftright = OrderStatisticTreeNode(1, 1)
+right = OrderStatisticTreeNode(4, 3)
+rightleft = OrderStatisticTreeNode(3, 1)
+rightright = OrderStatisticTreeNode(5, 1)
+root.left, left.parent = left, root
+root.right, right.parent = right, root
+left.right, leftright.parent = leftright, left
+right.left, rightleft.parent = rightleft, right
+right.right, rightright.parent = rightright, right
+os = OrderStatisticTree(root)
+nodes = [left, leftright, root, rightleft, right, rightright]
+for i,node in enumerate(nodes):
+    assert os.select(i) is nodes[i]
+    assert os.rank(node) is i
+    #assert os.select(os.rank(node)) is node
         
-        
-#root = OrderStatisticTreeNode(2, 5)
-#left = OrderStatisticTreeNode(0, 2)
-#leftright = OrderStatisticTreeNode(1, 1)
-#right = OrderStatisticTreeNode(4, 3)
-#rightleft = OrderStatisticTreeNode(3, 1)
-#rightright = OrderStatisticTreeNode(5, 1)
-#root.left, left.parent = left, root
-#root.right, right.parent = right, root
-#left.right, leftright.parent = leftright, left
-#right.left, rightleft.parent = rightleft, right
-#right.right, rightright.parent = rightright, right
-#os = OrderStatisticTree(root)
-#nodes = [left, leftright, root, rightleft, right, rightright]
-#for i,node in enumerate(nodes):
-#    assert os.select(i) is nodes[i]
-#    assert os.rank(node) is i
-#    #assert os.select(os.rank(node)) is node
-        
-        
-#os = OrderStatisticTree()
-#os.insert(OrderStatisticTreeNode(1))
-#os.insert(OrderStatisticTreeNode(0))
-#os.insert(OrderStatisticTreeNode(2))
-#os.insert(OrderStatisticTreeNode(3))
-#os.insert(OrderStatisticTreeNode(4))
+os = OrderStatisticTree()
+os.insert(OrderStatisticTreeNode(1))
+os.insert(OrderStatisticTreeNode(0))
+os.insert(OrderStatisticTreeNode(2))
+os.insert(OrderStatisticTreeNode(3))
+os.insert(OrderStatisticTreeNode(4))
 #os.print_tree()
-#print os.select(0) is os.search(0)
-#print os.select(1) is os.search(1)
-#print os.select(2) is os.search(2)
-#print os.select(3) is os.search(3)
-#print os.select(4) is os.search(4)
-#print os.select(5) is None
+assert os.select(0) is os.search(0)
+assert os.select(1) is os.search(1)
+assert os.select(2) is os.search(2)
+assert os.select(3) is os.search(3)
+assert os.select(4) is os.search(4)
+assert os.select(5) is None
+
