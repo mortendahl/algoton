@@ -621,7 +621,7 @@ def closest_match_alternative(numbers, target):
 #  Sub-set 2 sum
 #
 #
-# best case: O(n)
+# best case: O(1)
 #
 # worst case: O(n)
 #
@@ -629,10 +629,8 @@ def closest_match_alternative(numbers, target):
 #
 
 # assumes 'numbers' to be sorted in increasing order
-def subset2_sum(numbers, target):
-    merge_sort(numbers)   # sorted in-place
-    lower = 0
-    upper = len(numbers) - 1
+def subset2_sum(numbers, target, lower=0, upper=None):
+    if upper is None: upper = len(numbers)-1
     while lower < upper:
         current = numbers[lower] + numbers[upper]
         if target == current:
@@ -645,6 +643,31 @@ def subset2_sum(numbers, target):
             # move 'upper' down
             upper -= 1
     return None
+
+
+###################################
+#
+#  Sub-set 3 sum
+#
+#
+# best case: O(1)
+#
+# worst case: O(n**2)
+#
+# average case: O(n**2)
+#
+
+# assumes 'numbers' to be sorted in increasing order
+def subset3_sum(numbers, target):
+    for (i, x) in enumerate(numbers):
+        sub_target = target - x
+        sub_match = subset2_sum(numbers, sub_target, i+1)
+        if sub_match is not None:
+            (y,z) = sub_match
+            return x,y,z
+    return None
+
+
 
 
 
