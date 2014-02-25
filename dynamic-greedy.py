@@ -146,13 +146,40 @@ def word_split(str_to_split, words):
     else:
         # it was not possible to split the entire string
         return None
-        
 
+print word_split("house", set(["car", "carrot", "house"]))
 print word_split("carrothouse", set(["car", "carrot", "house"]))
 print word_split("carrothouses", set(["car", "carrot", "house"]))
 print word_split("stringintowords", set(["string", "ring", "in", "to", "into", "words"]))
 print word_split("finestring", set(["fine", "ring", "string"]))
 print word_split("iseeyourattachment", set(["i", "see", "you", "your", "rat", "at", "attachment"]))
+
+
+def word_split_naive(str_to_split, words):
+    # consider whole word
+    if str_to_split in words: 
+        # a split is possible if it is a word by itself
+        return [str_to_split]
+    else:
+        # .. and if it is not a word by itself, try its sub-strings
+        for i in xrange(len(str_to_split)-1, -1, -1):
+            left = str_to_split[:i]
+            right = str_to_split[i:]
+            if right in words: 
+                str_words = word_split_naive(left, words)
+                if str_words is not None:
+                    # a split of left was possible; add right and return
+                    str_words.append(right)
+                    return str_words
+        # it was not possible to split any sub-string
+        return None
+            
+print word_split_naive("house", set(["car", "carrot", "house"]))
+print word_split_naive("carrothouse", set(["car", "carrot", "house"]))
+print word_split_naive("carrothouses", set(["car", "carrot", "house"]))
+print word_split_naive("stringintowords", set(["string", "ring", "in", "to", "into", "words"]))
+print word_split_naive("finestring", set(["fine", "ring", "string"]))
+print word_split_naive("iseeyourattachment", set(["i", "see", "you", "your", "rat", "at", "attachment"]))
 
 
 
