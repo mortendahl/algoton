@@ -5,7 +5,7 @@
 #
 #  Assembly-line scheduling (Cormen et al. section 15.1)
 #
-#  - dynamic programming algorithm
+#  - dynamic programming
 #
 #
 #  note:
@@ -110,8 +110,12 @@ t1 = [2, 1, 2, 2, 1]
 #
 #  - dynamic programming
 #
+#
+#  note: 
+#   - see also http://stackoverflow.com/questions/3466972/
+#
 
-def word_split(str_to_split, words):
+def word_split_dynamic(str_to_split, words):
     # initialise array storing if it's possible to split sub-string str_to_split[:i+1]
     split_is_possible = [False]*len(str_to_split)
     # initialise array storing the word that made a split possible (or None if not)
@@ -147,12 +151,12 @@ def word_split(str_to_split, words):
         # it was not possible to split the entire string
         return None
 
-print word_split("house", set(["car", "carrot", "house"]))
-print word_split("carrothouse", set(["car", "carrot", "house"]))
-print word_split("carrothouses", set(["car", "carrot", "house"]))
-print word_split("stringintowords", set(["string", "ring", "in", "to", "into", "words"]))
-print word_split("finestring", set(["fine", "ring", "string"]))
-print word_split("iseeyourattachment", set(["i", "see", "you", "your", "rat", "at", "attachment"]))
+#print word_split_dynamic("house", set(["car", "carrot", "house"]))
+#print word_split_dynamic("carrothouse", set(["car", "carrot", "house"]))
+#print word_split_dynamic("carrothouses", set(["car", "carrot", "house"]))
+#print word_split_dynamic("stringintowords", set(["string", "ring", "in", "to", "into", "words"]))
+#print word_split_dynamic("finestring", set(["fine", "ring", "string"]))
+#print word_split_dynamic("iseeyourattachment", set(["i", "see", "you", "your", "rat", "at", "attachment"]))
 
 
 def word_split_naive(str_to_split, words):
@@ -174,12 +178,91 @@ def word_split_naive(str_to_split, words):
         # it was not possible to split any sub-string
         return None
             
-print word_split_naive("house", set(["car", "carrot", "house"]))
-print word_split_naive("carrothouse", set(["car", "carrot", "house"]))
-print word_split_naive("carrothouses", set(["car", "carrot", "house"]))
-print word_split_naive("stringintowords", set(["string", "ring", "in", "to", "into", "words"]))
-print word_split_naive("finestring", set(["fine", "ring", "string"]))
-print word_split_naive("iseeyourattachment", set(["i", "see", "you", "your", "rat", "at", "attachment"]))
+#print word_split_naive("house", set(["car", "carrot", "house"]))
+#print word_split_naive("carrothouse", set(["car", "carrot", "house"]))
+#print word_split_naive("carrothouses", set(["car", "carrot", "house"]))
+#print word_split_naive("stringintowords", set(["string", "ring", "in", "to", "into", "words"]))
+#print word_split_naive("finestring", set(["fine", "ring", "string"]))
+#print word_split_naive("iseeyourattachment", set(["i", "see", "you", "your", "rat", "at", "attachment"]))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################
+#
+#  Longest-common subsequence (Cormen et al. section 15.4)
+#
+#  - dynamic programming
+#
+
+def lcs_naive(strX, strY):
+    if len(strX) == 0 or len(strY) == 0: return ""
+    if strX[-1] == strY[-1]:
+        # last character match
+        sub_lcs = lcs_naive(strX[:-1], strY[:-1])
+        return sub_lcs + strX[-1]
+    else:
+        # last character mis-match
+        sub_lcs_1 = lcs_naive(strX[:-1], strY)
+        sub_lcs_2 = lcs_naive(strX, strY[:-1])
+        if len(sub_lcs_1) >= len(sub_lcs_2):
+            return sub_lcs_1
+        else:
+            return sub_lcs_2
+            
+print lcs_naive("abcbdab", "bdcaba")
+print lcs_naive("010110110", "10010101")
+
+
+#def print_matrix(matrix):
+#    for row in matrix:
+#        print row
+
+def lcs_dynamic(strX, strY):
+    store = [[ 0 for col in range(len(strY)+1)] for row in range(len(strX)+1)]
+    path  = [["" for col in range(len(strY)+1)] for row in range(len(strX)+1)]
+    for ix in xrange(1, len(strX)+1):
+        for iy in xrange(1, len(strY)+1):
+            if strX[ix-1] == strY[iy-1]:
+                # last character match
+                store[ix][iy] = store[ix-1][iy-1] + 1
+                path[ix][iy] = "d"  # diagonal
+            else:
+                # last character mis-match
+                #store[ix][iy] = max(store[ix-1][iy], store[ix][iy-1])
+                if store[ix-1][iy] >= store[ix][iy-1]:
+                    store[ix][iy] = store[ix-1][iy]
+                    path[ix][iy] = "u"  # up
+                else:
+                    store[ix][iy] = store[ix][iy-1]
+                    path[ix][iy] = "l"  # left
+    # extract path
+    ix = len(strX)
+    iy = len(strY)
+    lcs = ""
+    while ix > 0 and iy > 0:
+        if path[ix][iy] == "d":
+            lcs = strX[ix-1] + lcs
+            ix -= 1
+            iy -= 1
+        elif path[ix][iy] == "l":
+            iy -= 1
+        else:
+            ix -= 1
+    return lcs
+
+print lcs_dynamic("abcbdab", "bdcaba")
+print lcs_dynamic("010110110", "10010101")
 
 
 
