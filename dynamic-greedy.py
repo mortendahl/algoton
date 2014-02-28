@@ -5,8 +5,20 @@
 #
 #  Assembly-line scheduling (Cormen et al. section 15.1)
 #
-#  - dynamic programming
+#   - find fastest path through two lines of stations
 #
+#
+#  dynamic programming:
+#   - problem can be broken down to finding fastest path through previous station on both lines
+#   - by comparing the paths we get from extending each optimal sub-solution we may form a solution
+#   - why is this solution optimal? 
+#      - first, any optimal solution must be an extension of a sub-solution to the sub-problem
+#        since a (fastest) path must go through a previous station on one of the two lines
+#      - the used sub-solution must also be an optimal solution to the sub-problem since otherwise
+#        we could cut-and-paste in an optimal sub-solution to get a better solution, contradicting
+#        the fact that the solution is optimal
+#      - then, since we considered the extensions of all optimal sub-solutions, we must have picked
+#        an extension that was at least as good as any optimal solution
 #
 #  note:
 #   - assume that e0 and e1 have been inlined in a0[0] and a1[0] respectively
@@ -24,28 +36,28 @@ argmin = lambda v0, v1: 0 if v0 <= v1 else 1
 def assembly_line_scheduling_naive(a_same, a_other, t_same, t_other, id_same, id_other, j=None):
     if j is None: j = len(a_same)-1
     if j == 0:
-        # fartest path through station j=0 is just the time of that station
+        # fastest path through station j=0 is just the time it takes to go through that station
         return [id_same], a_same[0]
     else:
-        # fartest path for going through station j>0 if coming from same line
-        path_same, price_same   = assembly_line_scheduling_naive(a_same, a_other, t_same, t_other, id_same, id_other, j-1)
-        price_same += a_same[j]
-        # fartest path for going through station j>0 if coming from the other line
+        # fastest path for going through station j>0 if coming from same line
+        path_same,  price_same  = assembly_line_scheduling_naive(a_same, a_other, t_same, t_other, id_same, id_other, j-1)
+        price_same  += a_same[j]
+        # fastest path for going through station j>0 if coming from the other line
         path_other, price_other = assembly_line_scheduling_naive(a_other, a_same, t_other, t_same, id_other, id_same, j-1)
         price_other += t_other[j-1] + a_same[j]
-        # determine which was fartest
+        # determine which was fastest
         if price_same <= price_other:
-            # coming from same line was fartest
+            # coming from same line was fastest
             path_same.append(id_same)
             return (path_same, price_same)
         else:
-            # coming from the other line was fartest
+            # coming from the other line was fastest
             path_other.append(id_same)
             return (path_other, price_other)
 
 
 #
-#  dynamic programming approach
+#  dynamic programming (bottom-up) approach
 #
 
 def assembly_line_scheduling_dynamic(a0, a1, t0, t1):
@@ -76,10 +88,10 @@ def assembly_line_scheduling_dynamic_extract_way(l0, l1, choice):
     return lst
 
 
-a0 = [7+2, 9, 3, 4, 8, 4+3]
-a1 = [8+4, 5, 6, 4, 5, 7+2]
-t0 = [2, 3, 1, 3, 4]
-t1 = [2, 1, 2, 2, 1]
+#a0 = [7+2, 9, 3, 4, 8, 4+3]
+#a1 = [8+4, 5, 6, 4, 5, 7+2]
+#t0 = [2, 3, 1, 3, 4]
+#t1 = [2, 1, 2, 2, 1]
 
 # naive approach
 #path_same, price_same   = assembly_line_scheduling_naive(a0, a1, t0, t1, 0, 1)
@@ -108,11 +120,56 @@ t1 = [2, 1, 2, 2, 1]
 #
 #  Word split
 #
-#  - dynamic programming
+#   - split string into a set of words, where optimal means None if no split is possible and no left-over characters otherwise
 #
+#
+#  dynamic programming:
+#   - problem can be broken down by removing a last word and finding an optimal split of remaining sub-string
+#      - if there's no last word then no split is possible and hence returning None is optimal
+#   - by comparing the solutions we get from extending each optimal sub-split we may form a solution
+#   - why is this solution optimal?
+#     - first, any optimal solution must remove a last word and give optimal split of remaining sub-string
+#     - since we've compared all possible last words, we also considered the one used in the optimal solution,
+#       and hence our solution is at least as optimal
 #
 #  note: 
 #   - see also http://stackoverflow.com/questions/3466972/
+#
+
+
+#
+#  naive approach
+#
+
+def word_split_naive(str_to_split, words):
+    # consider whole word
+    if str_to_split in words: 
+        # a split is possible if it is a word by itself
+        return [str_to_split]
+    else:
+        # .. and if it is not a word by itself, try its sub-strings
+        for i in xrange(len(str_to_split)-1, -1, -1):
+            left = str_to_split[:i]
+            right = str_to_split[i:]
+            if right in words: 
+                str_words = word_split_naive(left, words)
+                if str_words is not None:
+                    # a split of left was possible; add right and return
+                    str_words.append(right)
+                    return str_words
+        # it was not possible to split any sub-string
+        return None
+            
+#print word_split_naive("house", set(["car", "carrot", "house"]))
+#print word_split_naive("carrothouse", set(["car", "carrot", "house"]))
+#print word_split_naive("carrothouses", set(["car", "carrot", "house"]))
+#print word_split_naive("stringintowords", set(["string", "ring", "in", "to", "into", "words"]))
+#print word_split_naive("finestring", set(["fine", "ring", "string"]))
+#print word_split_naive("iseeyourattachment", set(["i", "see", "you", "your", "rat", "at", "attachment"]))
+
+
+#
+#  dynamic programming approach
 #
 
 def word_split_dynamic(str_to_split, words):
@@ -159,31 +216,7 @@ def word_split_dynamic(str_to_split, words):
 #print word_split_dynamic("iseeyourattachment", set(["i", "see", "you", "your", "rat", "at", "attachment"]))
 
 
-def word_split_naive(str_to_split, words):
-    # consider whole word
-    if str_to_split in words: 
-        # a split is possible if it is a word by itself
-        return [str_to_split]
-    else:
-        # .. and if it is not a word by itself, try its sub-strings
-        for i in xrange(len(str_to_split)-1, -1, -1):
-            left = str_to_split[:i]
-            right = str_to_split[i:]
-            if right in words: 
-                str_words = word_split_naive(left, words)
-                if str_words is not None:
-                    # a split of left was possible; add right and return
-                    str_words.append(right)
-                    return str_words
-        # it was not possible to split any sub-string
-        return None
-            
-#print word_split_naive("house", set(["car", "carrot", "house"]))
-#print word_split_naive("carrothouse", set(["car", "carrot", "house"]))
-#print word_split_naive("carrothouses", set(["car", "carrot", "house"]))
-#print word_split_naive("stringintowords", set(["string", "ring", "in", "to", "into", "words"]))
-#print word_split_naive("finestring", set(["fine", "ring", "string"]))
-#print word_split_naive("iseeyourattachment", set(["i", "see", "you", "your", "rat", "at", "attachment"]))
+
 
 
 
@@ -202,7 +235,28 @@ def word_split_naive(str_to_split, words):
 #
 #  Longest-common subsequence (Cormen et al. section 15.4)
 #
-#  - dynamic programming
+#  - find longest common subsequence Z of two strings X and Y
+#
+#
+#  dynamic programming:
+#   - if X[-1] == Y[-1] then finding a LCS may be broken down by recursing on X[:-1] and Y[:-1]
+#      - from an optimal sub-solution we may form a solution by appending X[-1] (or Y[-1])
+#      - why is this an optimal solution?
+#         - any optimal solution Z must end with X[-1] (or Y[-1]) since otherwise we could extend it;
+#         - furthermore, Z[:-1] must be an optimal sub-solution to X[:-1] and Y[:-1] since o.w. contradiction by cut-and-paste
+#         - since we used an optimal sub-solution, our solution must be at least as good
+#   - if X[-1] != Y[-1] then finding a LCS may be broken down by recursing on X[:-1] and Y, or X and Y[:-1]
+#      - from an optimal sub-solution we may form a solution (by doing nothing)
+#      - why is this an optimal solution?
+#         - any optimal solution Z must exclude either X[-1] or Y[-1] since they differ, hence Z is actually
+#           an optimal sub-solution to one of the two sub-problems (otherwise cut-and-paste gives contradiction)
+#         - since we compared the optimal sub-solution to both sub-problems we must have used one that is
+#           at least as optimal as Z; and since Z is optimal our solution is optimal as well
+#
+
+
+#
+#  naive recursive approach
 #
 
 def lcs_naive(strX, strY):
@@ -220,13 +274,13 @@ def lcs_naive(strX, strY):
         else:
             return sub_lcs_2
             
-print lcs_naive("abcbdab", "bdcaba")
-print lcs_naive("010110110", "10010101")
+#print lcs_naive("abcbdab", "bdcaba")
+#print lcs_naive("010110110", "10010101")
 
 
-#def print_matrix(matrix):
-#    for row in matrix:
-#        print row
+#
+#  dynamic programming approach
+#
 
 def lcs_dynamic(strX, strY):
     store = [[ 0 for col in range(len(strY)+1)] for row in range(len(strX)+1)]
@@ -261,8 +315,193 @@ def lcs_dynamic(strX, strY):
             ix -= 1
     return lcs
 
-print lcs_dynamic("abcbdab", "bdcaba")
-print lcs_dynamic("010110110", "10010101")
+#print lcs_dynamic("abcbdab", "bdcaba")
+#print lcs_dynamic("010110110", "10010101")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################
+#
+#  0-1 Knapsack (Cormen et al. section 16.3)
+#
+#  - put items with highest total value in sack
+#
+#
+#  dynamic programming:
+#   - problem can be broken down by considering one less item for potential inclusion in the sack
+#   - by comparing the optimal total value obtained by extending either the sub-problem where the last 
+#     item (according to any ordering) was included (and hence less room for other items) or the 
+#     sub-problem where the last item was not included, we find a solution
+#   - why is this an optimal solution?
+#      - an optimal solution must decide to either include the item or not
+#      - and in either case, the optimal solution must be an extension of an optimal sub-solution (o.w. cut-and-paste ...)
+#      - but we compared the extension of all optimal sub-solutions and hence our solution is at least as optimal
+#
+
+
+#
+#  naive recursive approach
+#
+
+def knapsack_naive(items, remaining_weight):
+    if len(items) == 0: return 0  # no (more) items to consider, so total value is 0
+    item = items[0]  # pick item to consider for inclusion/exclusion
+    item_weight = item[0]
+    item_value  = item[1]
+    if item_weight <= remaining_weight:
+        # it's possible to include the item
+        # if we include it we get:
+        total_value_if_included = knapsack_naive(items[1:], remaining_weight - item_weight) + item_value
+        # .. and if we don't we get:
+        total_value_if_excluded = knapsack_naive(items[1:], remaining_weight)
+        return max(total_value_if_included, total_value_if_excluded)
+    else:
+        # item weights too much, can't include it
+        return knapsack_naive(items[1:], remaining_weight)
+
+
+#
+#  dynamic programming approach
+#
+
+def knapsack_dynamic(items, total_remaining_weight):
+    # first row is when there is no remaining_weight; 
+    # first column is when there are no items left
+    # .. in both cases do we have a value of 0
+    store = [[ 0 for col in range(len(items)+1)] for row in range(total_remaining_weight+1)]    
+    for i,item in enumerate(items):
+        item_weight = item[0]
+        item_value  = item[1]
+        for remaining_weight in range(1, total_remaining_weight+1):
+            if item_weight <= remaining_weight:
+                value_if_included = store[remaining_weight - item_weight][i] + item_value
+                value_if_excluded = store[remaining_weight][i]
+                store[remaining_weight][i+1] = max(value_if_included, value_if_excluded)
+            else:
+                value_if_excluded = store[remaining_weight][i]
+                store[remaining_weight][i+1] = value_if_excluded
+    #for i,row in enumerate(store):
+    #    print i,row
+    return store[total_remaining_weight][len(items)]
+
+#items = [ (10, 60), (20, 100), (30, 120) ]  # (weight, value)
+#print knapsack_naive(items, 50)
+#print knapsack_dynamic(items, 50)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################
+#
+#  Checker board (Cormen et al. section 16.1)
+#
+#  - move from bottom row to top row, moving either straight up, diagonally up left, 
+#    or diagonally up right (when possible), collection as much as possible
+#
+#
+#  dynamic programming:
+#   - from a field we can break the problem down till at most three sub-problems (up, left, and, right)
+#   - we can find a field's value by comparing the extensions of optimal sub-solutions
+#   - why is this an optimal solution:
+#     - an optimal solution must pick one of the moves we considered, and must find an optimal value of the sub-fields;
+#       if it didn't we could make a better move and get a better field value, contradicting optimality
+#     - hence since we consider the same moves we compare the same extensions when forming our solution
+#       and so it must be at least as optimal
+#
+
+
+#
+#  naive recursive approach
+#
+        
+def checkerboard_naive(board, irow, icol):
+    if irow == 0: 
+        # at top; collect only what's at that field
+        return board[irow][icol]
+    else:
+        move_values = []
+        # we can always move straight up (since irow != 0)
+        move_up_value = board[irow][icol] + checkerboard_naive(board, irow-1, icol)
+        move_values.append(move_up_value)
+        # we can move to the left if not at left border
+        if icol > 0:
+            move_left_value = board[irow][icol] + checkerboard_naive(board, irow-1, icol-1) 
+            move_values.append(move_left_value)
+        # we can move to the right if not at right border
+        if icol < len(board[irow])-1:
+            move_right_value = board[irow][icol] + checkerboard_naive(board, irow-1, icol+1)
+            move_values.append(move_right_value)
+        return max(move_values)
+        
+
+#
+#  dynamic programming approach
+#
+
+def checkerboard_dynamic(board):
+    store = [ [0 for col in row] for row in board ]
+    # build first row of store (copy from board since no moves are possible)
+    irow = 0
+    for icol in xrange(len(board[irow])):
+        store[irow][icol] = board[irow][icol]
+    #print "  "
+    #for row in store:
+    #    print row
+    # build rest of the rows of store
+    for irow in xrange(1, len(board)):
+        for icol in xrange(len(board[irow])):
+            move_values = []
+            # we can always move straight up (since irow != 0)
+            move_up_value = board[irow][icol] + store[irow-1][icol]
+            move_values.append(move_up_value)
+            # we can move to the left if not at left border
+            if icol > 0:
+                move_left_value = board[irow][icol] + store[irow-1][icol-1]
+                move_values.append(move_left_value)
+            # we can move to the right if not at right border
+            if icol < len(board[irow])-1:
+                move_right_value = board[irow][icol] + store[irow-1][icol+1]
+                move_values.append(move_right_value)
+            store[irow][icol] = max(move_values)
+        #print "  "
+        #for row in store:
+        #    print row
+    return max(store[-1])
+        
+board = [  [  1,  2,  3,  4,  5 ],
+           [ -1, -2, -3, -4, -5 ],
+           [  5,  4,  3,  2,  1 ],
+           [ -5, -4, -3, -2, -1 ],
+           [  1,  2,  3,  4,  5 ]  ]
+
+#print max([checkerboard_naive(board, len(board)-1, icol) for icol in xrange(len(board[0]))])
+#print checkerboard_dynamic(board)
+
+
 
 
 
@@ -288,6 +527,33 @@ print lcs_dynamic("010110110", "10010101")
 
 
 
+
+
+
+
+
+
+
+
+
+
 ######################
 #
-#  0-1 Knapsack (Cormen et al. section 16.3)
+#  Dijkstra (Cormen et al. section ...)
+#
+#  - greedy algorithm
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
