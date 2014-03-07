@@ -395,6 +395,7 @@ def knapsack_dynamic(items, total_remaining_weight):
     #    print i,row
     return store[total_remaining_weight][len(items)]
 
+
 #items = [ (10, 60), (20, 100), (30, 120) ]  # (weight, value)
 #print knapsack_naive(items, 50)
 #print knapsack_dynamic(items, 50)
@@ -491,15 +492,40 @@ def checkerboard_dynamic(board):
         #for row in store:
         #    print row
     return max(store[-1])
-        
-board = [  [  1,  2,  3,  4,  5 ],
-           [ -1, -2, -3, -4, -5 ],
-           [  5,  4,  3,  2,  1 ],
-           [ -5, -4, -3, -2, -1 ],
-           [  1,  2,  3,  4,  5 ]  ]
 
+       
+#board = [  [  1,  2,  3,  4,  5 ],
+#           [ -1, -2, -3, -4, -5 ],
+#           [  5,  4,  3,  2,  1 ],
+#           [ -5, -4, -3, -2, -1 ],
+#           [  1,  2,  3,  4,  5 ]  ]
+#
 #print max([checkerboard_naive(board, len(board)-1, icol) for icol in xrange(len(board[0]))])
 #print checkerboard_dynamic(board)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################
+#
+#  Scheduling to maximize profit (Cormen et al. problem 15-7 p. 369)
+#
+#
+#  dynamic programming
+#
 
 
 
@@ -524,34 +550,140 @@ board = [  [  1,  2,  3,  4,  5 ],
 #
 
 
+# use lists to characterise problems (look for max number of compatible activities in list)
+# any ordering works
+#  - unclear how to fill out tableau for dynamic programming solution (lacking simple structure in sub-problem formulation)
+def activity_selection_naive_sublists(activities):
+    # consider each activity
+    choices = [0]  # as a default value we can fit 0 activities
+    for activity_index,activity in enumerate(activities):
+        # divide the remaining activities into those that are compatible because they end before
+        activities_before = filter(lambda other_activity: other_activity[1] < activity[0], activities)
+        # .. and those that are compatible because they end after
+        activities_after  = filter(lambda other_activity: activity[1] <= other_activity[0], activities)
+        # and get maximum from recursion
+        max_activities_before = activity_selection_naive_sublists(activities_before)
+        max_activities_after  = activity_selection_naive_sublists(activities_after)
+        choices.append(max_activities_before + 1 + max_activities_after)
+    return max(choices)
 
+# re-use activities list for each recursive call, but limit by interval instead
+# use intervals to characterise problems (look for max number of compatible activities fitting in interval)
+# any ordering works
+#  - allows easy method for filling out tableau for dynamic programming solution, yet pseudo-polynomial
+def activity_selection_naive_interval(activities, interval_start=None, interval_finish=None):
+    # initialise for root case
+    if interval_start is None: interval_start = 0
+    if interval_finish is None: interval_finish = max(map(lambda (x,y): y, activities))+1  # one more than the latest
+    # consider each activity
+    choices = [0]  # as a default value we can fit 0 activities
+    for activity in activities:
+        activity_start  = activity[0]
+        activity_finish = activity[1]
+        if interval_start <= activity_start and activity_finish < interval_finish:
+            # activity is compatible with interval
+            # find maximum number of activities that can fit in before
+            max_activities_before = activity_selection_naive_interval(activities, interval_start, activity_start)
+            # .. and after this activity
+            max_activities_after  = activity_selection_naive_interval(activities, activity_finish, interval_finish)
+            choices.append(max_activities_before + 1 + max_activities_after)
+    return max(choices)
+    
+# re-use activities list for each recursive call, but limit by index instead
+# use indices to characterise intervals and in turn problems (look for max number of activities that fits before and after)
+# any ordering works
+#  - unclear how to fill out tableau for dynamic programming solution (lacking simple structure in sub-problem formulation)
+#  - problem is to guarantee that the right values are in the tableau when we need them
+def activity_selection_naive_indices(activities, index_before_activity=None, index_after_activity=None):
+    # initialise for root case
+    if index_before_activity is None: 
+        activities = [(-2,-1)] + activities
+        index_before_activity = 0
+    if index_after_activity is None: 
+        max_finishing_time = max(map(lambda (x,y): y, activities))
+        activities = activities + [(max_finishing_time+1,max_finishing_time+2)]
+        index_after_activity = len(activities)-1
+    # consider each activity
+    choices = [0]  # as default value we can fit 0 activities
+    for index_activity in xrange(0, len(activities)):
+        activity = activities[index_activity]
+        if activities[index_before_activity][1] <= activity[0] and activity[1] < activities[index_after_activity][0]:
+            # activity is compatible with interval
+            # find activities before
+            max_activities_before = activity_selection_naive_indices(activities, index_before_activity, index_activity)
+            # .. and after
+            max_activities_after  = activity_selection_naive_indices(activities, index_activity, index_after_activity)
+            choices.append(max_activities_before + 1 + max_activities_after)
+    return max(choices)
 
+# re-use activities list for each recursive call, but limit by index instead
+# use indices to characterise intervals and in turn problems (look for max number of activities that fits before and after)
+# assume sorted order so that at each level we already have a limit on the candidates
+#  - allows easy method for filling out tableau for dynamic programming solution, polynomial
+def activity_selection_naive_indices_sorted(activities, index_before_activity=None, index_after_activity=None):
+    # initialise for root case
+    if index_before_activity is None: 
+        activities = [(-2,-1)] + activities
+        index_before_activity = 0
+    if index_after_activity is None: 
+        max_finishing_time = max(map(lambda (x,y): y, activities))
+        activities = activities + [(max_finishing_time+1,max_finishing_time+2)]
+        index_after_activity = len(activities)-1
+    # consider each activity
+    choices = [0]  # as default value we can fit 0 activities
+    for index_activity in xrange(index_before_activity, index_after_activity):
+        activity = activities[index_activity]
+        if activities[index_before_activity][1] <= activity[0] and activity[1] < activities[index_after_activity][0]:
+            # activity is compatible with interval
+            # find activities before
+            max_activities_before = activity_selection_naive_indices_sorted(activities, index_before_activity, index_activity)
+            # .. and after
+            max_activities_after  = activity_selection_naive_indices_sorted(activities, index_activity, index_after_activity)
+            choices.append(max_activities_before + 1 + max_activities_after)
+    return max(choices)
 
+def activity_selection_dynamic_indices_sorted(activities):
+    # append dummy activities
+    min_starting_time =  min(map(lambda (x,y): x, activities))
+    max_finishing_time = max(map(lambda (x,y): y, activities))
+    activities = [(min_starting_time-2, min_starting_time-1)] + activities + [(max_finishing_time+1, max_finishing_time+2)]
+    # initialise tableau
+    n = len(activities)  # including extra lower and upper activity
+    tableau = [ [ 0 for icol in xrange(n) ] for irow in xrange(n) ]
+    # fill rest of tableau bottom-up
+    for index_before_activity in xrange(n-1-2, -1, -1):
+        for index_after_activity in xrange(index_before_activity+2, n):
+            choices = [0]
+            for index_activity in xrange(index_before_activity, index_after_activity):
+                activity = activities[index_activity]
+                if activities[index_before_activity][1] <= activity[0] and activity[1] < activities[index_after_activity][0]:
+                    # find activities before
+                    max_activities_before = tableau[index_before_activity][index_activity]
+                    # .. and after
+                    max_activities_after  = tableau[index_activity][index_after_activity]
+                    choices.append(max_activities_before + 1 + max_activities_after)
+            tableau[index_before_activity][index_after_activity] = max(choices)
+    return tableau[0][n-1]
 
+def activity_selection_greedy_indices_sorted(activities):
+    if len(activities) < 1: return len([])
+    current = activities[0]
+    selection = [current]
+    for activity in activities[1:]:
+        if current[1] <= activity[0]:
+            # include activity
+            selection.append(activity)
+            current = activity
+    return len(selection)
+        
 
-
-
-
-
-
-
-
-
-######################
-#
-#  Dijkstra (Cormen et al. section ...)
-#
-#  - greedy algorithm
-#
-
-
-
-
-
-
-
-
-
+activities = [ (8,12), (1,4), (3,8), (3,5), (0,6), (12,14), (5,7), (6,10), (5,9), (8,11), (2,13) ]  # (start_time, finish_time)
+print activity_selection_naive_sublists(activities)
+print activity_selection_naive_interval(activities)
+print activity_selection_naive_indices(activities)
+print activity_selection_naive_indices_sorted(sorted(activities, key=lambda (x,y): y))
+print activity_selection_dynamic_indices_sorted(sorted(activities, key=lambda (x,y): y))
+print activity_selection_greedy_indices_sorted(sorted(activities, key=lambda (x,y): y))
 
 
 

@@ -283,3 +283,41 @@ class MinPriorityQueue(MinHeap):
         # update value at the index we found
         self._heap[i] = key
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+
+######################
+#
+#  Dijkstra (Cormen et al. section ...)
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -169,7 +169,7 @@ class BinaryTree:
 #
 #  - Cormen et al. chapter 12
 #
-#  - satisfies binary search tree property, making search for a key efficient
+#  - satisfies binary search tree property, making search for a key efficient, O(h) (= O(log n) if balanced)
 #
 
 
@@ -347,7 +347,7 @@ class BinarySearchTree(BinaryTree):
 
 
 #
-#  build binary search tree from sorted list, O(n)
+#  build balanced binary search tree from sorted list, O(n)
 #
 
 def binary_search_tree_from_sorted_list(lst, lower=0, upper=None):
