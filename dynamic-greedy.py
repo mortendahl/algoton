@@ -677,13 +677,204 @@ def activity_selection_greedy_indices_sorted(activities):
     return len(selection)
         
 
-activities = [ (8,12), (1,4), (3,8), (3,5), (0,6), (12,14), (5,7), (6,10), (5,9), (8,11), (2,13) ]  # (start_time, finish_time)
-print activity_selection_naive_sublists(activities)
-print activity_selection_naive_interval(activities)
-print activity_selection_naive_indices(activities)
-print activity_selection_naive_indices_sorted(sorted(activities, key=lambda (x,y): y))
-print activity_selection_dynamic_indices_sorted(sorted(activities, key=lambda (x,y): y))
-print activity_selection_greedy_indices_sorted(sorted(activities, key=lambda (x,y): y))
+#activities = [ (8,12), (1,4), (3,8), (3,5), (0,6), (12,14), (5,7), (6,10), (5,9), (8,11), (2,13) ]  # (start_time, finish_time)
+#print activity_selection_naive_sublists(activities)
+#print activity_selection_naive_interval(activities)
+#print activity_selection_naive_indices(activities)
+#print activity_selection_naive_indices_sorted(sorted(activities, key=lambda (x,y): y))
+#print activity_selection_dynamic_indices_sorted(sorted(activities, key=lambda (x,y): y))
+#print activity_selection_greedy_indices_sorted(sorted(activities, key=lambda (x,y): y))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################
+#
+#  Subsequences (relevant for Max Subsequence)
+#
+#
+
+
+# note that the returned elements are not unique; run them through a set
+def subseqs_recursive_naive(str, lower=0, upper=None):
+    if upper is None: upper = len(str)-1
+    if not lower <= upper: 
+        # base case
+        return []
+    else:
+        ls = [ str[lower:upper+1] ]
+        # note: overlapping substrings in the naive approach
+        ls.extend(subseqs_recursive_naive(str, lower, upper-1))
+        ls.extend(subseqs_recursive_naive(str, lower+1, upper))
+        return ls
+
+print set(subseqs_recursive_naive("abcd"))
+
+
+# added condition fixes uniqueness issue with the naive approach above; can now use only list
+def subseqs_recursive(str, lower=0, upper=None):
+    if upper is None: upper = len(str)-1
+    if not lower <= upper: 
+        # base case
+        return []
+    else:
+        ls = [ str[lower:upper+1] ]
+        # condition removes overlapping
+        if lower == 0: ls.extend(subseqs_recursive(str, lower, upper-1))
+        ls.extend(subseqs_recursive(str, lower+1, upper))
+        return ls
+
+print subseqs_recursive("abcd")
+
+
+def subseqs_iterative(str):
+    ls = []
+    for upper in xrange(len(str)):
+        for lower in xrange(upper+1):
+            ls.append(str[lower:upper+1])
+    return ls
+
+print subseqs_iterative("abcd")
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################
+#
+#  Max Subsequence (Programming Pearls)
+#
+#  - greedy algorithm
+#
+
+
+# assume len(numbers) >= 2 and lower < upper
+def max_subseqs_recursive_naive(numbers, lower=0, upper=None):
+    if upper is None: upper = len(numbers)-1
+    #print lower, upper
+    if not lower+1 < upper:
+        # base case
+        return (lower, upper, numbers[lower] + numbers[upper])
+    else:
+        options = []
+        # find max if entire range is included
+        #  - alternatively: sum(numbers[lower:upper+1])
+        entire_sum = 0
+        for number in numbers[lower:upper+1]:
+            entire_sum += number
+        options.append( (lower, upper, entire_sum) )
+        # find max if rightmost is excluded
+        options.append( max_subseqs_recursive_naive(numbers, lower, upper-1) )
+        # find max if leftmost is excluded
+        options.append( max_subseqs_recursive_naive(numbers, lower+1, upper) )
+        # return maximum
+        return max(options, key=lambda (x,y,z): z)
+
+ls = [4,-5,3,-2,0,5,9,-7,10,-2,1]
+print max_subseqs_recursive_naive(ls)
+
+
+
+# assume len(numbers) >= 2 and lower < upper
+def max_subseqs_recursive(numbers, lower=0, upper=None):
+    if upper is None: upper = len(numbers)-1
+    #print lower, upper
+    if not lower+1 < upper:
+        # base case
+        return (lower, upper, numbers[lower] + numbers[upper])
+    else:
+        options = []
+        # find max if entire range is included
+        #  - alternatively: sum(numbers[lower:upper+1])
+        entire_sum = 0
+        for number in numbers[lower:upper+1]:
+            entire_sum += number
+        options.append( (lower, upper, entire_sum) )
+        if lower == 0:
+            # find max if rightmost is excluded
+            options.append( max_subseqs_recursive(numbers, lower, upper-1) )
+        # find max if leftmost is excluded
+        options.append( max_subseqs_recursive(numbers, lower+1, upper) )
+        # return maximum
+        return max(options, key=lambda (x,y,z): z)
+
+print max_subseqs_recursive(ls)
+
+
+def max_subseqs_iterative_naive(numbers):
+    n = len(numbers)-1
+    max_so_far = (0, 1, numbers[0] + numbers[1])
+    for upper in xrange(2, n+1):
+        for lower in xrange(0, upper):
+            entire_sum = 0
+            for number in numbers[lower:upper+1]:
+                entire_sum += number
+            if entire_sum > max_so_far[2]: 
+                max_so_far = (lower, upper, entire_sum)
+    return max_so_far
+    
+print max_subseqs_iterative_naive(ls)
+
+
+def max_subseqs_iterative(numbers):
+    n = len(numbers)-1
+    candidate_max = numbers[0] + numbers[1]
+    max_so_far = (0, 1, candidate_max)
+    store = [ [candidate_max] ]
+    for upper in xrange(2, n+1):
+        candidate_max = store[upper-2][0] + numbers[upper]
+        if candidate_max > max_so_far[2]:
+            max_so_far = (0, upper, candidate_max)
+        row = [ candidate_max ]
+        for lower in xrange(1, upper):
+            candidate_max = row[lower-1] - numbers[lower-1]
+            if candidate_max > max_so_far[2]:
+                max_so_far = (lower, upper, candidate_max)
+            row.append( candidate_max )
+        store.append(row)
+    return max_so_far
+    
+print max_subseqs_iterative(ls)
+
+
+def max_subseqs_iterative_optimised(numbers):
+    n = len(numbers)-1
+    sum_so_far = numbers[0] + numbers[1]
+    max_so_far = (0, 1, sum_so_far)
+    for upper in xrange(2, n+1):
+        sum_so_far += numbers[upper]
+        if sum_so_far > max_so_far[2]:
+            max_so_far = (0, upper, sum_so_far)
+    upper = max_so_far[1]
+    sum_so_far = max_so_far[2]
+    for lower in xrange(1, upper):
+        sum_so_far -= numbers[lower-1]
+        if sum_so_far > max_so_far[2]:
+            max_so_far = (lower, upper, sum_so_far)
+    return max_so_far
+    
+print max_subseqs_iterative_optimised(ls)
+
+
+
 
 
 
