@@ -71,7 +71,7 @@ fun kcombs(0, xs) = [ [] ]
             else (* if k > l *) []
         end;
 
-(* same optimisation as for cardprod' *)
+(* same optimisation as for carprod' *)
 fun kcombs'(0, xs) = [ [] ]
   | kcombs'(k, []) = []
   | kcombs'(k, x::xs) = 
