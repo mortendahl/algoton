@@ -1,7 +1,6 @@
 
 (* 
  * classical insertion sort 
- *
  *)
 fun insertionsort([]) = []
   | insertionsort(x::xs) = 
@@ -16,7 +15,6 @@ fun insertionsort([]) = []
 
 (*
  * Hoare's quicksort
- *
  *)
 fun quicksort([]) = []
   | quicksort(pivot::xs) =
@@ -53,7 +51,6 @@ fun quicksort'([], sorted) = sorted
 (*
  * Hoare's (lesser known) quickselect for picking out the element with rank i
  *  - note that average case running time is O(n) since we only ever follow one branch down (compared to O(n logn) of naive sort-then-select)
- *
  *)
 fun quickselect(0, [x]) = x
   | quickselect(i, pivot::xs) =
@@ -84,7 +81,6 @@ fun merge([], ys) = ys
 
 (*
  * Mergesort (inefficient due to repeated scanning)
- *
  *)        
 fun mergesort([]) = []
   | mergesort([x]) = [x]
@@ -99,7 +95,6 @@ fun mergesort([]) = []
 
 (*
  * Helper functions for O'Keefe's algorithms below
- *
  *)
 fun mergepairs([l], k) = [l]
   | mergepairs(l1::l2::ls, k) =
