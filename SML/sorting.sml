@@ -29,16 +29,23 @@ fun quicksort([]) = []
         partition(xs, [], [])
         end
 
+(*
+ * ... and slightly shorter
+ *)
+fun quicksort'([]) = []
+  | quicksort'(pivot::xs) =
+        let val (left, right) = List.partition (fn x => x < pivot) xs
+        in (quicksort' left) @ [pivot] @ (quicksort' right) end
 
 (*
- * Hoare's quicksort, using accumulator to get rid of append operation 
+ * ... and using accumulator to get rid of append operation 
  *  - initial call is quicksort'(xs, [])
  *)
-fun quicksort'([], sorted) = sorted
-  | quicksort'(pivot::xs, sorted) =
+fun quicksort''([], sorted) = sorted
+  | quicksort''(pivot::xs, sorted) =
         let fun partition([], left, right) = 
                     (* partitioning done, recurse down right followed by left *)
-                    quicksort'(left, pivot::quicksort'(right, sorted))
+                    quicksort''(left, pivot::quicksort''(right, sorted))
               | partition(y::ys, left, right) =
                     (* keep partitioning *)
                     if y < pivot then partition(ys, y::left, right)
