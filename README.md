@@ -1,4 +1,4 @@
-algoton
+Algoton
 =======
 
 Little catalogue of Data structures and Algorithms. 
