@@ -149,7 +149,9 @@ struct
     fun insert(Tree.Leaf, k, s) = Tree.Branch( (k,s), Tree.Leaf, Tree.Leaf )
       | insert(root as Tree.Branch(c', _, _), k, s) = insert'(root, k, s, c')
         
-    (* TODO finish this one *)
+    (* this one is the naive double-check version; can't see how to do this without an extra
+       checking on the way up from the recursive (say, using an optional type), meaning we're
+       doing a double-check anyway (plus insisting of always going to the leaf) *)
     fun update(Tree.Leaf, k, s) = Tree.Branch( (k,s), Tree.Leaf, Tree.Leaf )
       | update(Tree.Branch((k',s'), left, right), k, s) =
             if k < k' then Tree.Branch( (k',s'), update(left,k,s), right )
