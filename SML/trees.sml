@@ -77,6 +77,64 @@ sig
     val update : 'a t * key * 'a -> 'a t
 end
 
+structure QuickListDict : DICTIONARY =
+struct
+    type key = int
+    type 'a t = (key * 'a) list
+    
+    exception E of key
+    
+    val empty = []
+    
+    fun member([], _) = false
+      | member((k',_)::xs, k) =
+            if k = k' then true
+            else member(xs, k)
+            
+    fun lookup([], k) = raise E k
+      | lookup((k',s')::xs, k) =
+            if k = k' then s'
+            else lookup(xs, k)
+            
+    (* note, we do not check whether or key already exists or not, unlike in TreeDict *)
+    fun insert(xs, k, s) = (k,s)::xs
+    
+    (* note, we use that lookup just picks the first pair with a matching key; 
+       this means that the size of the dict can differ from the number of keys *)
+    fun update(xs, k, s) = (k,s)::xs
+    
+end
+
+structure UniqueListDict : DICTIONARY =
+struct
+    type key = int
+    type 'a t = (key * 'a) list
+    
+    exception E of key
+    
+    val empty = []
+    
+    fun member([], _) = false
+      | member((k',_)::xs, k) =
+            if k = k' then true
+            else member(xs, k)
+            
+    fun lookup([], k) = raise E k
+      | lookup((k',s')::xs, k) =
+            if k = k' then s'
+            else lookup(xs, k)
+            
+    fun insert(xs, k, s) = 
+            if member(xs, k) then raise E k
+            else (k,s)::xs
+
+    fun update([], k, s) = [(k,s)]
+      | update((k',s')::xs, k, s) =
+            if k = k' then (k,s)::xs
+            else (k',s')::update(xs, k, s)
+
+end
+
 structure TreeDict : DICTIONARY =
 struct
     type key = int
@@ -160,8 +218,4 @@ struct
     
 end
 
-val t0 = OptimisedTreeDict.empty    
-val t1 = OptimisedTreeDict.insert(t0, 1, "a")
-val t2 = OptimisedTreeDict.insert(t1, 2, "b")
-val t3 = OptimisedTreeDict.insert(t2, 3, "c")
     
