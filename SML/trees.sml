@@ -218,4 +218,71 @@ struct
     
 end
 
+signature HEAP =
+sig
+    type item
+    type t
+    val empty : t
+    val isEmpty : t -> bool
+    val min : t -> item
+    val removeMin : t -> t
+    val insert : item * t -> t
+    val fromList : item list -> t
+    val toList : t -> item list
+    val sort : item list -> item list
+end
+
+structure Heap : HEAP =
+struct
+    type item = int
+    type t = item Tree.tree
+    
+    val empty = Tree.Leaf
+    
+    fun isEmpty(Tree.Leaf) = true
+      | isEmpty(_) = false
+
+    fun min(Tree.Branch(v, _, _)) = v
+    
+    fun leftRemove(Tree.Branch(v, Tree.Leaf, Tree.Leaf)) = (v, Tree.Leaf)
+      | leftRemove(Tree.Branch(v, left, right)) =
+            let val (w, left') = leftRemove(left)
+            in (w, Tree.Branch(v, right, left')) end
+    
+    fun shiftDown(v, left as Tree.Leaf, right as Tree.Leaf) = Tree.Branch(v, left, right)
+      | shiftDown(v, left as Tree.Branch(w, Tree.Leaf, Tree.Leaf), right as Tree.Leaf) =
+            if v <= w then Tree.Branch(v, left, right)
+            else Tree.Branch(w, Tree.Branch(v, Tree.Leaf, Tree.Leaf), Tree.Leaf)
+      | shiftDown(v, left as Tree.Branch(leftw, leftleft, leftright), right as Tree.Branch(rightw, rightleft, rightright)) =
+            if v <= leftw andalso v <= rightw then Tree.Branch(v, left, right)
+            else if leftw <= rightw then Tree.Branch(leftw, shiftDown(v, leftleft, leftright), right)
+            else Tree.Branch(rightw, left, shiftDown(v, rightleft, rightright))
+    
+    fun removeMin(Tree.Leaf) = raise Size
+      | removeMin(Tree.Branch(v, Tree.Leaf, _)) = Tree.Leaf
+      | removeMin(Tree.Branch(_, left, right)) =
+            let val (w, left') = leftRemove left
+            in shiftDown(w, right, left') end
+      
+    fun insert(v, Tree.Leaf) = Tree.Branch(v, Tree.Leaf, Tree.Leaf)
+      | insert(v, Tree.Branch(w, left, right)) =
+            if v <= w then Tree.Branch(v, insert(w, right), left)
+            else Tree.Branch(w, insert(v, right), left)
+            
+    fun heapify(0, vs) = (Tree.Leaf, vs)
+      | heapify(n, v::vs) =
+            let val (left, vs') = heapify(n div 2, vs)
+                val (right, vs'') = heapify((n-1) div 2, vs')
+            in (shiftDown(v, left, right), vs'') end
+            
+    fun fromList(vs) = #1 (heapify(List.length vs, vs))
+    
+    fun toList(Tree.Leaf) = []
+      | toList(t as Tree.Branch(v, _, _)) = v :: toList(removeMin(t))
+    
+    fun sort(vs) = toList(fromList(vs))
+    
+end
+    
+
     
