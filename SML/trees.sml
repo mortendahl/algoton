@@ -232,7 +232,7 @@ sig
     val sort : item list -> item list
 end
 
-structure Heap : HEAP =
+structure TreeHeap : HEAP =
 struct
     type item = int
     type t = item Tree.tree
